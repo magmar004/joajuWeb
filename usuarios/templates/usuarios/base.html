@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Joaju - Plataforma de Gestión{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-navy: #0F172A;
+            --brand-blue: #1E3A8A;
+            --brand-accent-blue: #2563EB;
+            --brand-green: #059669;
+            --brand-accent-green: #10B981;
+            --bg-neutral: #F8FAFC;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-neutral);
+            color: var(--text-dark);
+        }
+
+        .btn-brand-primary {
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-accent-blue));
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-brand-primary:hover {
+            background: linear-gradient(135deg, #1e40af, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .custom-input {
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.925rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-input:focus {
+            border-color: var(--brand-accent-blue);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

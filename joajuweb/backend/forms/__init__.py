@@ -1,7 +1,11 @@
 from .auth import CustomLoginForm, CustomSetPasswordForm, PerfilForm, RegistroForm
-from .actividades import ActividadForm
 
-__all__ = [
+try:
+    from .actividades import ActividadForm
+except ImportError:
+    ActividadForm = None
+
+_all_ = [
     'RegistroForm',
     'CustomLoginForm',
     'CustomSetPasswordForm',

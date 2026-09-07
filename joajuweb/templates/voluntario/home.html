@@ -12,30 +12,15 @@
         <h2 class="fw-bold text-dark mb-2">¡Bienvenido a Joaju!</h2>
         <p class="text-muted mb-0">
             Hola, <strong>{{ user.get_full_name|default:user.username }}</strong>.
-            Acá ves tu próxima actividad y algunas abiertas para sumarte.
+            Elegí una actividad y sumate cuando quieras participar.
         </p>
     </div>
 
     {% include 'includes/mensajes.html' %}
-
-    <div class="page-heading">
-        <h3 class="fw-bold text-dark mb-1">Tu próxima actividad</h3>
-        <p class="text-muted small mb-0">La más cercana en la que ya estás inscripto.</p>
-    </div>
-    {% if proxima %}
-        {% include 'voluntario/includes/tarjetas.html' with actividades=proxima_lista destacada=True %}
-    {% else %}
-        <div class="surface-card empty-state mb-4">
-            <i class="bi bi-calendar3 d-block"></i>
-            <h5 class="fw-bold text-dark">Todavía no te sumaste a ninguna</h5>
-            <p class="text-muted small mb-0">Cuando te inscribas, tu próxima jornada aparece acá.</p>
-        </div>
-    {% endif %}
-
     <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
         <div>
-            <h3 class="fw-bold text-dark mb-1">Abiertas para sumarte</h3>
-            <p class="text-muted small mb-0">Algunas de las próximas oportunidades.</p>
+            <h3 class="fw-bold text-dark mb-1">Actividades publicadas</h3>
+            <p class="text-muted small mb-0">Oportunidades abiertas para sumarte.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{% url 'voluntario:historial' %}" class="btn btn-brand-secondary btn-sm">
@@ -46,7 +31,13 @@
             </a>
         </div>
     </div>
-    {% include 'voluntario/includes/tarjetas.html' with actividades=abiertas vacio="No hay más actividades abiertas por ahora. Explorá el listado completo." %}
+    {% if proxima or abiertas or grupos %}
+        {% include 'voluntario/includes/tarjetas.html' %}
+    {% else %}
+        <div class="surface-card mt-3">
+            <p class="text-muted mb-0">Cuando las actividades estén disponibles, van a aparecer acá.</p>
+        </div>
+    {% endif %}
 </div>
 </div>
 {% endblock %}

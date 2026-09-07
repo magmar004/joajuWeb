@@ -7,7 +7,11 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from joajuweb.backend.forms import CustomLoginForm, RegistroForm
-from joajuweb.backend.servicios import resumen_inicio_voluntario
+
+try:
+    from joajuweb.backend.servicios import resumen_inicio_voluntario
+except ImportError:
+    resumen_inicio_voluntario = None
 
 MODULOS_COORDINADOR = {
     'publicar_actividades': {
@@ -71,7 +75,8 @@ def home_view(request):
 def voluntario_home_view(request):
     if request.user.es_coordinador():
         return redirect('coordinador:home')
-    return render(request, 'voluntario/home.html', resumen_inicio_voluntario(request.user))
+    contexto = resumen_inicio_voluntario(request.user) if resumen_inicio_voluntario else {}
+    return render(request, 'voluntario/home.html', contexto)
 
 
 @login_required
@@ -97,3 +102,8 @@ def coordinador_modulo_view(request, modulo):
     if not contexto:
         raise Http404
     return render(request, 'coordinador/modulo.html', {'modulo': contexto})
+
+
+@login_required
+def no_disponible_view(request, **kwargs):
+    return render(request, 'auth/no_disponible.html')

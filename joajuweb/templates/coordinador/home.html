@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <div class="surface-card hero-card mb-4">
+        <p class="hero-kicker">Coordinador</p>
+        <h2 class="fw-bold text-dark mb-2">Panel del Coordinador</h2>
+        <p class="text-muted mb-0">
+            Bienvenido, <strong>{{ user.get_full_name|default:user.username }}</strong>.
+            Gestiona las actividades de voluntariado desde un solo lugar.
+        </p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a href="{% url 'coordinador:publicar' %}" class="dashboard-action-card h-100">
+                <span class="action-icon mb-3">
+                    <i class="bi bi-plus-lg fs-5"></i>
+                </span>
+                <h5 class="fw-bold mb-2">Publicar actividades de voluntariado</h5>
+                <p class="text-muted small mb-4">Crea una actividad y publicala cuando esté lista.</p>
+                <span class="card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'coordinador:gestionar' %}" class="dashboard-action-card h-100">
+                <span class="action-icon mb-3">
+                    <i class="bi bi-calendar3 fs-5"></i>
+                </span>
+                <h5 class="fw-bold mb-2">Gestionar actividades</h5>
+                <p class="text-muted small mb-4">Editá, publicá borradores o cancelá las que ya no se realizan.</p>
+                <span class="card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'coordinador:reportes' %}" class="dashboard-action-card h-100">
+                <span class="action-icon mb-3">
+                    <i class="bi bi-bar-chart fs-5"></i>
+                </span>
+                <h5 class="fw-bold mb-2">Reportes</h5>
+                <p class="text-muted small mb-4">Totales y detalle de actividades, voluntarios e inscripciones.</p>
+                <span class="card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'coordinador:participacion' %}" class="dashboard-action-card h-100">
+                <span class="action-icon mb-3">
+                    <i class="bi bi-people fs-5"></i>
+                </span>
+                <h5 class="fw-bold mb-2">Participación</h5>
+                <p class="text-muted small mb-4">Seguí inscripciones y el historial de cada voluntario.</p>
+                <span class="card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar actividad | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:gestionar' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver a gestionar
+    </a>
+
+    <div class="page-heading page-narrow">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% if actividad.esta_publicada %}
+                <span class="badge-soft badge-soft-success">Publicada</span>
+            {% else %}
+                <span class="badge-soft badge-soft-muted">Borrador</span>
+            {% endif %}
+        </div>
+        <h2 class="fw-bold text-dark mb-1">Editar actividad</h2>
+        <p class="text-muted mb-0">
+            {% if actividad.esta_publicada %}
+                Si cambiás fecha, cupo u otros datos, se avisará por correo a los voluntarios inscriptos.
+            {% else %}
+                Este borrador todavía no es visible. Podés guardarlo o publicarlo.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="surface-card surface-card--form">
+        {% if form.errors %}
+            <div class="alert app-alert app-alert-danger mb-4" role="alert">
+                <strong>Atención:</strong> Revisá los campos marcados.
+            </div>
+        {% endif %}
+
+        <form id="form-editar" method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.tipo.id_for_label }}" class="form-label">Tipo de actividad</label>
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.area.id_for_label }}" class="form-label">Área</label>
+                    {{ form.area }}
+                    {% if form.area.errors %}<div class="text-danger small mt-1">{{ form.area.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.ubicacion.id_for_label }}" class="form-label">Ubicación</label>
+                {{ form.ubicacion }}
+                {% if form.ubicacion.errors %}<div class="text-danger small mt-1">{{ form.ubicacion.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}<div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="{{ form.fecha.id_for_label }}" class="form-label">Fecha</label>
+                    {{ form.fecha }}
+                    {% if form.fecha.errors %}<div class="text-danger small mt-1">{{ form.fecha.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.cupo.id_for_label }}" class="form-label">Cupo</label>
+                    {{ form.cupo }}
+                    <p class="text-muted small mt-1 mb-0">
+                        {{ actividad.cantidad_inscriptos }} inscripto(s). El cupo no puede ser menor.
+                    </p>
+                    {% if form.cupo.errors %}<div class="text-danger small mt-1">{{ form.cupo.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+        </form>
+
+        <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 justify-content-end">
+            <button type="submit" form="form-editar" name="accion" value="guardar" class="btn btn-brand-primary">
+                Guardar cambios
+            </button>
+            {% if actividad.esta_borrador %}
+                <button type="submit" form="form-editar" name="accion" value="publicar" class="btn btn-brand-secondary">
+                    Publicar
+                </button>
+            {% endif %}
+            {% if actividad.se_puede_cancelar %}
+                <form method="post" action="{% url 'coordinador:cancelar' actividad.pk %}" class="m-0"
+                      onsubmit="return confirm('¿Cancelar esta actividad? Se avisará a los voluntarios inscriptos.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-brand-danger">
+                        Cancelar actividad
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

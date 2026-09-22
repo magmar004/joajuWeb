@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi perfil | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading page-narrow">
+        <p class="hero-kicker">Cuenta</p>
+        <h2 class="fw-bold text-dark mb-1">Mi perfil</h2>
+        <p class="text-muted mb-0">Consultá y actualizá tu nombre, contacto y foto.</p>
+    </div>
+
+    <div class="surface-card surface-card--form">
+        {% include 'includes/mensajes.html' %}
+
+        {% if form.errors %}
+            <div class="alert app-alert app-alert-danger mb-4" role="alert">
+                <strong>Atención:</strong> Revisá los campos marcados.
+            </div>
+        {% endif %}
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+            {% if user.foto %}
+                <img src="{{ user.foto.url }}" alt="Foto de perfil" class="profile-photo">
+            {% else %}
+                <span class="profile-photo profile-photo--placeholder">
+                    {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                </span>
+            {% endif %}
+            <div>
+                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                <div class="text-muted small">{{ user.username }} · {{ user.rol_principal|default:"Sin rol" }}</div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Correo electrónico</label>
+                {{ form.email }}
+                {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono</label>
+                {{ form.telefono }}
+                {% if form.telefono.errors %}<div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.foto.id_for_label }}" class="form-label">Foto de perfil</label>
+                {{ form.foto }}
+                <p class="text-muted small mt-1 mb-0">JPG, PNG o WEBP. Máximo 2 MB.</p>
+                {% if form.foto.errors %}<div class="text-danger small mt-1">{{ form.foto.errors.0 }}</div>{% endif %}
+            </div>
+
+            {% if user.foto %}
+                <div class="form-check mb-4">
+                    {{ form.quitar_foto }}
+                    <label class="form-check-label" for="{{ form.quitar_foto.id_for_label }}">Quitar foto actual</label>
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-brand-primary">
+                Guardar cambios
+            </button>
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

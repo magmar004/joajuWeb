@@ -1,0 +1,62 @@
+{% if actividades %}
+    <div class="row g-3 mb-2">
+        {% for actividad in actividades %}
+            <div class="col-md-6">
+                <div class="activity-card">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {% if actividad.esta_publicada %}
+                            <span class="badge-soft badge-soft-success">Publicada</span>
+                        {% elif actividad.esta_borrador %}
+                            <span class="badge-soft badge-soft-muted">Borrador</span>
+                        {% else %}
+                            <span class="badge-soft badge-soft-danger">Cancelada</span>
+                        {% endif %}
+                        <span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span>
+                        <span class="badge-soft badge-soft-muted">{{ actividad.get_area_display }}</span>
+                        {% if actividad.esta_completa %}
+                            <span class="badge-soft badge-soft-warning">Completa</span>
+                        {% endif %}
+                    </div>
+                    <h5 class="fw-bold mb-2">{{ actividad.nombre }}</h5>
+                    <p class="text-muted small mb-3">{{ actividad.descripcion|truncatewords:22 }}</p>
+                    <div class="meta-row">
+                        <span><i class="bi bi-calendar3 me-1"></i>{{ actividad.fecha|date:"d/m/Y" }}</span>
+                        {% if actividad.ubicacion %}
+                            <span><i class="bi bi-geo-alt me-1"></i>{{ actividad.ubicacion }}</span>
+                        {% endif %}
+                        <span><i class="bi bi-people me-1"></i>{{ actividad.cantidad_inscriptos }}/{{ actividad.cupo }} inscriptos</span>
+                        <span><i class="bi bi-ticket-perforated me-1"></i>{{ actividad.cupos_disponibles }} disponibles</span>
+                    </div>
+                    <div class="cupo-track mb-3">
+                        <span class="cupo-fill {% if actividad.esta_completa %}is-full{% endif %}" style="width: {% widthratio actividad.cantidad_inscriptos actividad.cupo 100 %}%;"></span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-auto">
+                        {% if actividad.se_puede_editar %}
+                            <a href="{% url 'coordinador:editar' actividad.pk %}" class="btn btn-brand-primary btn-sm">
+                                Editar
+                            </a>
+                        {% endif %}
+                        {% if actividad.se_puede_registrar_asistencia %}
+                            <a href="{% url 'coordinador:asistencia' actividad.pk %}" class="btn btn-brand-secondary btn-sm">
+                                Asistencia
+                            </a>
+                        {% endif %}
+                        {% if actividad.se_puede_cancelar %}
+                            <form method="post" action="{% url 'coordinador:cancelar' actividad.pk %}" class="m-0"
+                                onsubmit="return confirm('¿Cancelar esta actividad? Se avisará a los voluntarios inscriptos.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-brand-danger btn-sm">
+                                    Cancelar
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="surface-card mb-2">
+        <p class="text-muted small mb-0">{{ vacio }}</p>
+    </div>
+{% endif %}

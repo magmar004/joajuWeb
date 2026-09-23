@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ modulo.titulo }} | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading">
+        <p class="hero-kicker">Coordinador</p>
+        <h2 class="fw-bold text-dark mb-1">{{ modulo.titulo }}</h2>
+        <p class="text-muted mb-0">{{ modulo.descripcion }}</p>
+    </div>
+
+    <div class="surface-card empty-state page-narrow">
+        <span class="action-icon action-icon-lg mb-0">
+            <i class="bi {{ modulo.icono }} fs-2"></i>
+        </span>
+    </div>
+</div>
+</div>
+{% endblock %}

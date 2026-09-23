@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Participación | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading">
+        <p class="hero-kicker">Voluntarios</p>
+        <h2 class="fw-bold text-dark mb-1">Registro de participación</h2>
+        <p class="text-muted mb-0">Voluntarios inscriptos en tus actividades. Solo vos y cada voluntario ven su historial.</p>
+    </div>
+
+    {% if voluntarios %}
+        <div class="row g-3">
+            {% for voluntario in voluntarios %}
+                <div class="col-md-6">
+                    <a href="{% url 'coordinador:historial_voluntario' voluntario.pk %}" class="activity-card person-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="user-avatar">
+                                {% if voluntario.first_name %}{{ voluntario.first_name|slice:":1"|upper }}{{ voluntario.last_name|slice:":1"|upper }}{% else %}{{ voluntario.username|slice:":1"|upper }}{% endif %}
+                            </span>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ voluntario.get_full_name|default:voluntario.username }}</h5>
+                                <p class="text-muted small mb-0">{{ voluntario.email }}</p>
+                            </div>
+                        </div>
+                        <span class="card-arrow text-brand mt-auto">Ver historial <i class="bi bi-arrow-right ms-1"></i></span>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="surface-card empty-state">
+            <i class="bi bi-people d-block"></i>
+            <h5 class="fw-bold text-dark">Todavía no hay voluntarios inscriptos</h5>
+            <p class="text-muted small mb-0">Cuando alguien se sume a una actividad tuya, vas a poder ver su historial.</p>
+        </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

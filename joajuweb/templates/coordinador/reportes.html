@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading">
+        <p class="hero-kicker">Impacto</p>
+        <h2 class="fw-bold text-dark mb-1">Reportes de voluntariado</h2>
+        <p class="text-muted mb-0">Totales y detalle de actividades, voluntarios e inscripciones.</p>
+    </div>
+
+    <form method="get" class="surface-card filter-bar mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="fecha_desde" class="form-label">Desde</label>
+                <input type="date" name="fecha_desde" id="fecha_desde" class="form-control custom-input" value="{{ filtros.fecha_desde }}">
+            </div>
+            <div class="col-md-4">
+                <label for="fecha_hasta" class="form-label">Hasta</label>
+                <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control custom-input" value="{{ filtros.fecha_hasta }}">
+            </div>
+            <div class="col-md-4">
+                <label for="tipo" class="form-label">Tipo de actividad</label>
+                <select name="tipo" id="tipo" class="form-select custom-input">
+                    <option value="">Todos</option>
+                    {% for valor, etiqueta in tipos.choices %}
+                        <option value="{{ valor }}" {% if filtros.tipo == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="submit" class="btn btn-brand-primary btn-sm">Aplicar</button>
+            <a href="{% url 'coordinador:reportes' %}" class="btn btn-brand-secondary btn-sm">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <span class="stat-label">Actividades</span>
+                <span class="stat-value">{{ totales.actividades }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <span class="stat-label">Voluntarios</span>
+                <span class="stat-value">{{ totales.voluntarios }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <span class="stat-label">Inscripciones</span>
+                <span class="stat-value">{{ totales.inscripciones }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <span class="stat-label">Presentes / ausentes</span>
+                <span class="stat-value">{{ totales.presentes }} / {{ totales.ausentes }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">
+        <h3>Actividades</h3>
+        <span class="section-count">{{ actividades|length }}</span>
+    </div>
+    <div class="surface-card mb-4">
+        {% if actividades %}
+            {% for actividad in actividades %}
+                <div class="list-row">
+                    <div>
+                        <strong>{{ actividad.nombre }}</strong>
+                        <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
+                    </div>
+                    <div class="text-muted small">
+                        {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted small mb-0">No hay actividades con esos filtros.</p>
+        {% endif %}
+    </div>
+
+    <div class="section-label">
+        <h3>Voluntarios</h3>
+        <span class="section-count">{{ voluntarios|length }}</span>
+    </div>
+    <div class="surface-card mb-4">
+        {% if voluntarios %}
+            {% for voluntario in voluntarios %}
+                <div class="list-row">
+                    <div>
+                        <strong>{{ voluntario.get_full_name|default:voluntario.username }}</strong>
+                        <div class="text-muted small">{{ voluntario.email }}</div>
+                    </div>
+                    <div class="text-muted small">
+                        {{ voluntario.n_inscripciones }} inscripción(es) · {{ voluntario.n_presentes }} presente(s)
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted small mb-0">No hay voluntarios inscriptos en el período.</p>
+        {% endif %}
+    </div>
+
+    <div class="section-label">
+        <h3>Inscripciones</h3>
+        <span class="section-count">{{ inscripciones|length }}</span>
+    </div>
+    <div class="surface-card">
+        {% if inscripciones %}
+            {% for inscripcion in inscripciones %}
+                <div class="list-row">
+                    <div>
+                        <strong>{{ inscripcion.voluntario.get_full_name|default:inscripcion.voluntario.username }}</strong>
+                        <div class="text-muted small">{{ inscripcion.actividad.nombre }} · {{ inscripcion.actividad.get_tipo_display }}</div>
+                    </div>
+                    <div class="text-muted small">
+                        {{ inscripcion.actividad.fecha|date:"d/m/Y" }} · {{ inscripcion.get_asistencia_display }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted small mb-0">No hay inscripciones con esos filtros.</p>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}

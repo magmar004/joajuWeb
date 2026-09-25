@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Actividades publicadas | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'voluntario:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading">
+        <p class="hero-kicker">Voluntariado</p>
+        <h2 class="fw-bold text-dark mb-2">Actividades publicadas</h2>
+        <p class="text-muted mb-0">Filtrá por tipo, área o ubicación y agrupá el listado como te resulte más fácil.</p>
+    </div>
+
+    <form method="get" class="surface-card filter-bar mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="tipo" class="form-label">Tipo</label>
+                <select name="tipo" id="tipo" class="form-select custom-input">
+                    <option value="">Todos</option>
+                    {% for valor, etiqueta in tipos.choices %}
+                        <option value="{{ valor }}" {% if filtros.tipo == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="area" class="form-label">Área</label>
+                <select name="area" id="area" class="form-select custom-input">
+                    <option value="">Todas</option>
+                    {% for valor, etiqueta in areas.choices %}
+                        <option value="{{ valor }}" {% if filtros.area == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="ubicacion" class="form-label">Ubicación</label>
+                <input type="text" name="ubicacion" id="ubicacion" class="form-control custom-input" value="{{ filtros.ubicacion }}" placeholder="Barrio, plaza, local...">
+            </div>
+            <div class="col-md-3">
+                <label for="agrupar" class="form-label">Agrupar por</label>
+                <select name="agrupar" id="agrupar" class="form-select custom-input">
+                    {% for valor, etiqueta in agrupar_opciones %}
+                        <option value="{{ valor }}" {% if filtros.agrupar == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="submit" class="btn btn-brand-primary btn-sm">Aplicar</button>
+            <a href="{% url 'voluntario:listado' %}" class="btn btn-brand-secondary btn-sm">Limpiar</a>
+        </div>
+    </form>
+
+    {% include 'includes/mensajes.html' %}
+
+    {% if grupos %}
+        {% for grupo in grupos %}
+            <div class="section-label">
+                <h3>{{ grupo.titulo }}</h3>
+                <span class="section-count">{{ grupo.actividades|length }}</span>
+            </div>
+            {% include 'voluntario/includes/tarjetas.html' with actividades=grupo.actividades %}
+        {% endfor %}
+    {% else %}
+        <div class="surface-card empty-state">
+            <i class="bi bi-calendar3 d-block"></i>
+            {% if hay_filtros %}
+                <h5 class="fw-bold text-dark">No hay actividades con esos filtros</h5>
+                <p class="text-muted small mb-0">Probá otro tipo, área o ubicación, o limpiá los filtros.</p>
+            {% else %}
+                <h5 class="fw-bold text-dark">Todavía no hay actividades publicadas</h5>
+                <p class="text-muted small mb-0">Cuando un coordinador publique una actividad, va a aparecer acá.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

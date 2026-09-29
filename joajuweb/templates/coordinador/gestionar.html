@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar actividades | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+        <div>
+            <p class="hero-kicker">Actividades</p>
+            <h2 class="fw-bold text-dark mb-1">Gestionar actividades</h2>
+            <p class="text-muted mb-0">Editá, cancelá o registrá la asistencia cuando la actividad ya finalizó.</p>
+        </div>
+        <a href="{% url 'coordinador:publicar' %}" class="btn btn-brand-primary">
+            Nueva actividad
+        </a>
+    </div>
+
+    {% include 'includes/mensajes.html' %}
+
+    <div class="section-label">
+        <h3>Borradores</h3>
+        <span class="section-count">{{ borradores|length }}</span>
+    </div>
+    {% include 'coordinador/includes/tabla.html' with actividades=borradores vacio="No tenés actividades en borrador." %}
+
+    <div class="section-label">
+        <h3>Publicadas</h3>
+        <span class="section-count">{{ publicadas|length }}</span>
+    </div>
+    {% include 'coordinador/includes/tabla.html' with actividades=publicadas vacio="No tenés actividades publicadas." %}
+
+    <div class="section-label">
+        <h3>Canceladas</h3>
+        <span class="section-count">{{ canceladas|length }}</span>
+    </div>
+    {% include 'coordinador/includes/tabla.html' with actividades=canceladas vacio="No hay actividades canceladas." %}
+</div>
+</div>
+{% endblock %}

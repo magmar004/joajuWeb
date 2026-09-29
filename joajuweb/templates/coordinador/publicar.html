@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Publicar actividad | JoajuWeb{% endblock %}
+
+{% block content %}
+{% include 'includes/navbar.html' %}
+
+<div class="page">
+<div class="container">
+    <a href="{% url 'coordinador:home' %}" class="back-link">
+        <i class="bi bi-arrow-left me-1"></i> Volver al panel
+    </a>
+
+    <div class="page-heading page-narrow">
+        <p class="hero-kicker">Nueva actividad</p>
+        <h2 class="fw-bold text-dark mb-1">Publicar actividades de voluntariado</h2>
+        <p class="text-muted mb-0">
+            Completá los datos. Podés guardarla como <strong>borrador</strong> o <strong>publicarla</strong> para que los voluntarios la vean y se sumen.
+        </p>
+    </div>
+
+    <div class="surface-card surface-card--form">
+        {% include 'includes/mensajes.html' %}
+
+        {% if form.errors %}
+            <div class="alert app-alert app-alert-danger alert-dismissible fade show mb-4" role="alert">
+                <strong>Atención:</strong> Revisá los campos obligatorios marcados.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.tipo.id_for_label }}" class="form-label">Tipo de actividad</label>
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}
+                        <div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.area.id_for_label }}" class="form-label">Área</label>
+                    {{ form.area }}
+                    {% if form.area.errors %}
+                        <div class="text-danger small mt-1">{{ form.area.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.ubicacion.id_for_label }}" class="form-label">Ubicación</label>
+                {{ form.ubicacion }}
+                {% if form.ubicacion.errors %}
+                    <div class="text-danger small mt-1">{{ form.ubicacion.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="{{ form.fecha.id_for_label }}" class="form-label">Fecha</label>
+                    {{ form.fecha }}
+                    {% if form.fecha.errors %}
+                        <div class="text-danger small mt-1">{{ form.fecha.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.cupo.id_for_label }}" class="form-label">Cupo</label>
+                    {{ form.cupo }}
+                    {% if form.cupo.errors %}
+                        <div class="text-danger small mt-1">{{ form.cupo.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                <button type="submit" name="accion" value="guardar" class="btn btn-brand-secondary">
+                    Guardar borrador
+                </button>
+                <button type="submit" name="accion" value="publicar" class="btn btn-brand-primary">
+                    Publicar actividad
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}

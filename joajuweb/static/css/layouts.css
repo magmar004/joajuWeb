@@ -1,0 +1,235 @@
+/* Distribución de las pantallas Joaju. No afecta al admin ni a páginas externas. */
+.joaju-ui {
+    --layout-gap: 1.5rem;
+    line-height: 1.6;
+}
+
+.joaju-ui .layout-container {
+    width: 100%;
+    max-width: 1360px;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 3vw, 2.5rem);
+}
+
+.joaju-ui .page { padding: 2rem 0 3.5rem; }
+.joaju-ui .page-heading { margin-bottom: 1.75rem; }
+.joaju-ui .page-heading > p:last-child { max-width: 72ch; }
+.joaju-ui .page-heading h1,
+.joaju-ui .page-heading h2 { font-size: clamp(1.75rem, 2.5vw, 2.3rem); line-height: 1.2; }
+.joaju-ui .back-link { min-height: 2rem; margin-bottom: .9rem; }
+.joaju-ui main { scroll-margin-top: 8rem; }
+.joaju-ui :is(h1, h2, h3, h4, h5, p, strong, .small, .meta-row) { overflow-wrap: anywhere; }
+.joaju-ui :is(.surface-card, .activity-card, .dashboard-action-card, .stat-card) { min-width: 0; }
+.joaju-ui :is(.surface-card, .activity-card, .dashboard-action-card) { padding: clamp(1.15rem, 2vw, 1.65rem); }
+.joaju-ui :is(.surface-card, .activity-card, .dashboard-action-card) > :last-child { margin-bottom: 0; }
+.joaju-ui .section-label { margin: 1.75rem 0 .9rem; }
+.joaju-ui .section-label h3 { font-size: 1.1rem; }
+.joaju-ui .custom-input { min-height: 2.8rem; max-width: 100%; border-color: #91879f; }
+.joaju-ui textarea.custom-input { min-height: 9rem; resize: vertical; }
+.joaju-ui :is(input, select, textarea) { min-width: 0; }
+.joaju-ui :is(.btn, .choice-pill) { min-height: 2.75rem; }
+.joaju-ui .btn-close { min-width: 2.75rem; min-height: 2.75rem; box-sizing: border-box; }
+.joaju-ui .btn { white-space: normal; }
+.joaju-ui .choice-pill { padding: .6rem .9rem; }
+.joaju-ui fieldset { min-inline-size: 0; padding: 0; margin: 0; border: 0; }
+.joaju-ui :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.joaju-ui .app-navbar :focus-visible { outline-color: #fff; }
+.joaju-ui main:focus { outline: none; }
+.joaju-ui .skip-link {
+    position: fixed; left: 1rem; top: .75rem; z-index: 2000;
+    background: var(--navy); color: #fff; border-radius: .6rem;
+    padding: .75rem 1rem; transform: translateY(-160%);
+}
+.joaju-ui .skip-link:focus { transform: translateY(0); }
+
+/* Navegación a las secciones existentes, con el mismo acceso por rol. */
+.joaju-ui .app-navbar { padding-block: .6rem; }
+.joaju-ui .navbar-layout { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; }
+.joaju-ui .navbar-brand { margin: 0; }
+.joaju-ui .navbar-links { display: flex; align-items: center; justify-content: center; gap: .2rem; min-width: 0; }
+.joaju-ui .navbar-links a {
+    display: inline-flex; align-items: center; min-height: 2.75rem;
+    padding: .55rem .8rem; border-radius: .65rem;
+    color: rgba(255, 255, 255, .78); text-decoration: none; font-size: .875rem;
+    font-weight: 500; white-space: nowrap;
+}
+.joaju-ui .navbar-links a:hover,
+.joaju-ui .navbar-links a[aria-current="page"] { color: #fff; background: rgba(255, 255, 255, .14); }
+.joaju-ui .navbar-account { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.joaju-ui .user-chip { min-width: 0; min-height: 2.75rem; }
+.joaju-ui .user-chip > span:last-child:not(.user-avatar) { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.joaju-ui .user-avatar { flex-shrink: 0; }
+
+/* Componentes de organización; cada plantilla elige los que necesita. */
+.joaju-ui .workspace-grid,
+.joaju-ui .detail-grid,
+.joaju-ui .profile-grid { display: grid; gap: var(--layout-gap); align-items: start; }
+.joaju-ui .workspace-grid > *,
+.joaju-ui .detail-grid > *,
+.joaju-ui .profile-grid > *,
+.joaju-ui .editor-grid > * { min-width: 0; }
+.joaju-ui .workspace-sidebar { display: grid; gap: 1.25rem; align-items: start; }
+.joaju-ui .panel-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 .8rem; }
+.joaju-ui .panel-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem; }
+.joaju-ui .panel-heading .panel-title { margin: 0; }
+.joaju-ui .panel-copy { color: var(--muted); font-size: .875rem; margin-bottom: 1rem; }
+.joaju-ui .summary-list { margin: 0; }
+.joaju-ui .summary-list > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: .7rem; }
+.joaju-ui .summary-list dt { color: var(--muted); font-size: .875rem; font-weight: 500; }
+.joaju-ui .summary-list dd { text-align: right; margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.joaju-ui .code-panel { background: var(--accent-soft); border-color: #d8d2f5; }
+.joaju-ui .attendance-code { display: block; font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 700; letter-spacing: .08em; color: var(--navy); overflow-wrap: anywhere; margin-bottom: .75rem; }
+.joaju-ui .search-toolbar { display: grid; gap: .75rem 1rem; margin-bottom: 1.25rem; align-items: end; }
+.joaju-ui .search-toolbar .btn { align-self: end; }
+.joaju-ui .results-count { color: var(--muted); font-size: .82rem; min-height: 1.3rem; margin-bottom: 0; }
+.joaju-ui .attendance-row { display: grid; gap: 1rem; padding-block: 1.1rem; border-top: 1px solid var(--line); }
+.joaju-ui .attendance-row[hidden],
+.joaju-ui .directory-row[hidden] { display: none; }
+.joaju-ui .attendance-choices { display: flex; flex-wrap: wrap; gap: .5rem; }
+.joaju-ui .action-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.joaju-ui .action-footer p { margin: 0; color: var(--muted); font-size: .82rem; }
+.joaju-ui .button-group { display: flex; flex-wrap: wrap; gap: .65rem; }
+.joaju-ui .directory-row { display: grid; gap: .5rem 1rem; align-items: center; padding-block: 1.15rem; border-top: 1px solid var(--line); }
+.joaju-ui .directory-person { display: flex; align-items: center; min-width: 0; gap: .8rem; }
+.joaju-ui .directory-person > div { min-width: 0; }
+.joaju-ui .directory-date { font-size: .85rem; color: var(--muted); }
+
+/* Formularios: información y calendario comparten el espacio de escritorio. */
+.joaju-ui .editor-grid { display: grid; gap: 1.5rem; }
+.joaju-ui .editor-schedule { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.joaju-ui .editor-schedule #jornadas-editor { margin-bottom: 0 !important; }
+.joaju-ui .jornada-entry { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1rem; background: rgba(255, 255, 255, .45); margin-bottom: 1rem; }
+.joaju-ui .jornada-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .8rem; align-items: end; }
+.joaju-ui .jornada-date { grid-column: 1 / -1; }
+.joaju-ui .jornada-delete { grid-column: 1 / -1; display: flex; gap: .5rem; align-items: center; min-height: 2.75rem; }
+.joaju-ui .jornada-delete input { width: 1.1rem; height: 1.1rem; }
+.joaju-ui .jornada-delete label { display: inline-flex; align-items: center; min-height: 2.75rem; margin: 0; cursor: pointer; }
+.joaju-ui .errorlist { color: var(--danger); font-size: .875rem; padding-left: 1.25rem; margin-bottom: 1rem; }
+.joaju-ui .profile-summary { text-align: center; }
+.joaju-ui .profile-summary .profile-photo { width: 6rem; height: 6rem; margin-bottom: 1.25rem; }
+.joaju-ui .profile-summary .profile-photo--placeholder { font-size: 1.75rem; }
+.joaju-ui .profile-summary .profile-name { font-size: 1.15rem; margin-bottom: .25rem; }
+.joaju-ui .profile-upload { text-align: left; border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1.5rem; }
+
+/* Catálogos y paneles: rejillas con proporciones según el contenido. */
+.joaju-ui .card-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; margin-bottom: 1.25rem; }
+.joaju-ui .card-grid > * { min-width: 0; }
+.joaju-ui .card-grid .activity-card h3 { font-size: 1.1rem; line-height: 1.4; }
+.joaju-ui .activity-card .card-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: auto; padding-top: 1.15rem; }
+.joaju-ui .activity-card .meta-row { font-size: .82rem; gap: .6rem .85rem; }
+.joaju-ui .hero-card { padding: clamp(1.5rem, 3vw, 2.25rem); }
+.joaju-ui .dashboard-hero { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.75rem; }
+.joaju-ui .dashboard-hero > div { max-width: 72ch; }
+.joaju-ui .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.joaju-ui .dashboard-action-card :is(h2, h3) { font-size: 1.15rem; line-height: 1.4; }
+.joaju-ui .dashboard-action-card p { max-width: 45ch; }
+.joaju-ui .filter-bar { margin-bottom: 1.75rem; }
+.joaju-ui .report-grid { display: grid; gap: 1.5rem; align-items: start; }
+.joaju-ui .report-grid > * { min-width: 0; }
+.joaju-ui .report-grid .section-label { margin-top: 0; }
+.joaju-ui .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+.joaju-ui .stats-grid .stat-card { height: 100%; }
+.joaju-ui .stat-card .stat-label { min-height: 2.5em; }
+.joaju-ui .list-row > * { min-width: 0; }
+.joaju-ui .report-grid .list-row { flex-direction: column; align-items: start; gap: .5rem; }
+.joaju-ui .detail-description { max-width: 76ch; white-space: pre-line; }
+.joaju-ui .schedule-list { list-style: none; margin: 0; padding: 0; }
+.joaju-ui .schedule-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; padding-block: .9rem; border-bottom: 1px solid var(--line); }
+.joaju-ui .schedule-list li:last-child { border-bottom: 0; }
+.joaju-ui .daily-records { display: grid; gap: .5rem; padding: .9rem 0; margin-bottom: 1rem; }
+.joaju-ui .daily-record { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; font-size: .85rem; }
+.joaju-ui .detail-actions { display: grid; gap: 1.25rem; }
+.joaju-ui .detail-actions > .surface-card > form .btn { width: 100%; }
+.joaju-ui .compact-state { max-width: 700px; margin-inline: auto; }
+
+/* Autenticación y estados: ancho de lectura contenido, con más aire interior. */
+.joaju-ui .auth-layout { display: grid !important; min-height: 100vh; min-height: 100dvh; overflow: visible !important; }
+.joaju-ui .auth-layout > * { width: auto; min-width: 0; }
+.joaju-ui .auth-layout .auth-panel { padding: clamp(1.25rem, 4vw, 4rem) !important; }
+.joaju-ui .auth-layout .auth-form { width: 100%; max-width: 460px; }
+.joaju-ui .auth-layout.auth-registration .auth-form { max-width: 640px; }
+.joaju-ui .auth-layout .auth-hero { position: relative; isolation: isolate; overflow: hidden; padding: clamp(2rem, 4vw, 4.5rem) !important; }
+.joaju-ui .auth-layout .auth-hero::before,
+.joaju-ui .auth-layout .auth-hero::after { content: ''; position: absolute; z-index: -1; width: 24rem; height: 24rem; border: 1px solid rgba(255, 255, 255, .1); border-radius: 50%; right: -10rem; top: -8rem; pointer-events: none; }
+.joaju-ui .auth-layout .auth-hero::after { width: 36rem; height: 36rem; top: auto; right: auto; bottom: -18rem; left: -15rem; }
+.joaju-ui .auth-layout .auth-headline { max-width: 15ch; font-size: clamp(2.1rem, 3.2vw, 3.3rem); line-height: 1.2; }
+.joaju-ui .auth-layout .auth-hero p { max-width: 44ch; }
+.joaju-ui .auth-form > .mb-4 { margin-bottom: 2rem !important; }
+.joaju-ui .recovery-page { padding-block: 2rem; }
+.joaju-ui .recovery-page .surface-card--auth { max-width: 500px; padding: clamp(1.5rem, 4vw, 2.5rem); }
+.joaju-ui .recovery-page h1 { font-size: clamp(1.4rem, 2.5vw, 1.8rem); line-height: 1.3; }
+.joaju-ui .profile-upload input[type="file"] { width: 100%; }
+
+@media (min-width: 576px) {
+    .joaju-ui .search-toolbar { grid-template-columns: minmax(0, 1fr) auto; }
+    .joaju-ui .directory-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .joaju-ui .directory-date { text-align: right; }
+}
+@media (min-width: 768px) {
+    .joaju-ui .workspace-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .joaju-ui .card-grid,
+    .joaju-ui .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .joaju-ui .card-grid--featured { grid-template-columns: minmax(0, 1fr); }
+    .joaju-ui .attendance-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .joaju-ui .jornada-fields { grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr)) auto; }
+    .joaju-ui .jornada-date,
+    .joaju-ui .jornada-delete { grid-column: auto; }
+    .joaju-ui .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 992px) {
+    .joaju-ui .workspace-grid,
+    .joaju-ui .profile-grid { grid-template-columns: 300px minmax(0, 1fr); }
+    .joaju-ui .workspace-sidebar { grid-template-columns: minmax(0, 1fr); }
+    .joaju-ui .detail-grid { grid-template-columns: minmax(0, 1fr) 340px; }
+    .joaju-ui .attendance-save { position: sticky; bottom: 1rem; z-index: 10; background: var(--surface); border: 1px solid var(--line); padding: 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow); }
+    .joaju-ui .report-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+    .joaju-ui .report-wide { grid-column: 1 / -1; }
+    .joaju-ui .auth-layout { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
+}
+@media (min-width: 1200px) {
+    .joaju-ui .editor-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; }
+    .joaju-ui .editor-schedule { padding-top: 0; padding-left: 2rem; border-top: 0; border-left: 1px solid var(--line); }
+    .joaju-ui .editor-schedule .jornada-fields { grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 1fr)); }
+    .joaju-ui .editor-schedule .jornada-date { grid-column: auto; }
+    .joaju-ui .editor-schedule .jornada-delete { grid-column: 1 / -1; }
+}
+@media (min-width: 1280px) {
+    .joaju-ui .card-grid--catalog,
+    .joaju-ui .card-grid--people { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .joaju-ui .dashboard-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 991.98px) {
+    .joaju-ui .navbar-layout { grid-template-columns: auto minmax(0, 1fr); gap: .35rem 1rem; }
+    .joaju-ui .navbar-account { justify-self: end; }
+    .joaju-ui .navbar-links { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; overflow-x: auto; scrollbar-width: thin; padding-block: .15rem; }
+}
+@media (max-width: 575.98px) {
+    .joaju-ui .page { padding-top: 1.25rem; padding-bottom: 2.5rem; }
+    .joaju-ui .layout-container { padding-inline: 1rem; }
+    .joaju-ui .navbar-layout { gap: .2rem .6rem; }
+    .joaju-ui .navbar-links { gap: 0; }
+    .joaju-ui .navbar-links a { font-size: .8rem; padding-inline: .6rem; }
+    .joaju-ui .custom-input { font-size: 1rem; }
+    .joaju-ui .search-toolbar > .btn,
+    .joaju-ui .action-footer > .btn,
+    .joaju-ui .action-footer > .button-group,
+    .joaju-ui .button-group > .btn { width: 100%; }
+    .joaju-ui .button-group { width: 100%; }
+    .joaju-ui .attendance-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .joaju-ui .attendance-choices .choice-pill { justify-content: center; padding-inline: .6rem; }
+    .joaju-ui .stat-card .stat-value { font-size: 1.55rem; }
+    .joaju-ui .stats-grid { gap: .75rem; }
+    .joaju-ui .attendance-page--manual .workspace-sidebar { display: contents; }
+    .joaju-ui .attendance-page--manual .attendance-panel { order: 1; }
+    .joaju-ui .attendance-page--manual .code-panel { order: 2; }
+    .joaju-ui .attendance-page .page-heading > p:last-child { font-size: .875rem; }
+    .joaju-ui .attendance-page .summary-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    .joaju-ui .attendance-page .summary-list > div { display: flex; flex-direction: column; gap: .35rem; }
+    .joaju-ui .attendance-page .summary-list dt { font-size: .75rem; }
+    .joaju-ui .attendance-page .summary-list dd { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html:has(.joaju-ui) { scroll-behavior: auto; }
+    .joaju-ui *, .joaju-ui *::before, .joaju-ui *::after { transition: none !important; animation: none !important; }
+    .joaju-ui :is(.activity-card, .dashboard-action-card, .btn):hover { transform: none; }
+}

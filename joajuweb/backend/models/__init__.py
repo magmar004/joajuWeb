@@ -8,6 +8,8 @@ try:
         EstadoAsistencia,
         EstadoParticipacion,
         Inscripcion,
+        JornadaActividad,
+        AsistenciaJornada,
         TipoActividad,
     )
 except ImportError:
@@ -17,6 +19,8 @@ except ImportError:
     EstadoAsistencia = None
     EstadoParticipacion = None
     Inscripcion = None
+    JornadaActividad = None
+    AsistenciaJornada = None
     TipoActividad = None
 
 _all_ = [
@@ -28,5 +32,7 @@ _all_ = [
     'EstadoAsistencia',
     'EstadoParticipacion',
     'Inscripcion',
+    'JornadaActividad',
+    'AsistenciaJornada',
     'TipoActividad',
 ]

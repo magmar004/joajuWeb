@@ -11,22 +11,28 @@ from .auth import (
 try:
     from .actividades import (
         asistencia_view,
+        confirmar_asistencia_view,
         baja_inscripcion_view,
         cancelar_view,
+        finalizar_view,
         detalle_view,
         editar_view,
         gestionar_view,
+        inscritos_view,
         inscribirse_view,
         listado_view,
         publicar_view,
     )
 except ImportError:
     asistencia_view = None
+    confirmar_asistencia_view = None
     baja_inscripcion_view = None
     cancelar_view = None
+    finalizar_view = None
     detalle_view = None
     editar_view = None
     gestionar_view = None
+    inscritos_view = None
     inscribirse_view = None
     listado_view = None
     publicar_view = None
@@ -62,9 +68,12 @@ _all_ = [
     'inscribirse_view',
     'baja_inscripcion_view',
     'gestionar_view',
+    'inscritos_view',
     'editar_view',
     'cancelar_view',
+    'finalizar_view',
     'asistencia_view',
+    'confirmar_asistencia_view',
     'historial_propio_view',
     'historial_ajeno_view',
     'participacion_view',

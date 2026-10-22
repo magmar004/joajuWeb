@@ -1,0 +1,74 @@
+{
+  "navegador": "Edge headless",
+  "resultados": [
+    {
+      "pantalla": "pendiente",
+      "ancho": 1440,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "pendiente",
+      "ancho": 768,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "pendiente",
+      "ancho": 390,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "finalizada",
+      "ancho": 1440,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "finalizada",
+      "ancho": 768,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "finalizada",
+      "ancho": 390,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "asistencia-finalizada",
+      "ancho": 1440,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "asistencia-finalizada",
+      "ancho": 768,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "asistencia-finalizada",
+      "ancho": 390,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "detalle-finalizada",
+      "ancho": 1440,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "detalle-finalizada",
+      "ancho": 768,
+      "desbordamiento": false
+    },
+    {
+      "pantalla": "detalle-finalizada",
+      "ancho": 390,
+      "desbordamiento": false
+    }
+  ],
+  "errores": [],
+  "flujos": [
+    "cierre con confirmación",
+    "sin cierre anticipado en actividades futuras",
+    "asistencia masiva, filtro y persistencia después del cierre",
+    "historial conservado",
+    "sin inscripciones ni confirmación en finalizadas",
+    "catálogo sin actividades finalizadas"
+  ]
+}

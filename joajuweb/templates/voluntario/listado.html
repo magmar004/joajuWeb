@@ -5,15 +5,15 @@
 {% block content %}
 {% include 'includes/navbar.html' %}
 
-<div class="page">
-<div class="container">
+<main class="page" id="contenido" tabindex="-1">
+<div class="layout-container">
     <a href="{% url 'voluntario:home' %}" class="back-link">
         <i class="bi bi-arrow-left me-1"></i> Volver al panel
     </a>
 
     <div class="page-heading">
         <p class="hero-kicker">Voluntariado</p>
-        <h2 class="fw-bold text-dark mb-2">Actividades publicadas</h2>
+        <h1 class="fw-bold text-dark mb-2">Actividades publicadas</h1>
         <p class="text-muted mb-0">Filtrá por tipo, área o ubicación y agrupá el listado como te resulte más fácil.</p>
     </div>
 
@@ -79,5 +79,5 @@
         </div>
     {% endif %}
 </div>
-</div>
+</main>
 {% endblock %}

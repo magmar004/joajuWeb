@@ -1,71 +1,51 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ actividad.nombre }} | JoajuWeb{% endblock %}
-
 {% block content %}
 {% include 'includes/navbar.html' %}
-
-<div class="page">
-<div class="container">
-    <a href="{% url 'voluntario:listado' %}" class="back-link">
-        <i class="bi bi-arrow-left me-1"></i> Volver a actividades
-    </a>
-
-    <div class="page-heading">
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span>
-            <span class="badge-soft badge-soft-muted">{{ actividad.get_area_display }}</span>
-            {% if actividad.esta_completa %}
-                <span class="badge-soft badge-soft-warning">Completa</span>
+<main class="page detail-page" id="contenido" tabindex="-1"><div class="layout-container">
+    <a href="{% url 'voluntario:listado' %}" class="back-link"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Volver a actividades</a>
+    <header class="page-heading">
+        <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span><span class="badge-soft badge-soft-muted">{{ actividad.get_area_display }}</span>{% if actividad.esta_completa %}<span class="badge-soft badge-soft-warning">Completa</span>{% endif %}</div>
+        <h1 class="fw-bold text-dark mb-2">{{ actividad.nombre }}</h1>
+        {% if actividad.ubicacion %}<p class="text-muted mb-0"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ actividad.ubicacion }}</p>{% endif %}
+    </header>
+    {% include 'includes/mensajes.html' %}
+    {% if actividad.esta_finalizada %}<div class="alert app-alert app-alert-success" role="status">Esta actividad fue dada por terminada. Las inscripciones están cerradas y las participaciones se conservan en el historial.</div>
+    {% elif actividad.ya_finalizo %}<div class="alert app-alert app-alert-warning" role="status">Todas las jornadas terminaron. Las inscripciones están cerradas.</div>{% endif %}
+    <div class="detail-grid">
+        <div class="d-grid gap-4">
+            <section class="surface-card"><h2 class="panel-title">Sobre la actividad</h2><p class="detail-description mb-0">{{ actividad.descripcion }}</p></section>
+            <section class="surface-card">
+                <div class="panel-heading"><h2 class="panel-title">Jornadas</h2><span class="badge-soft badge-soft-muted">Hora de Asunción, Paraguay</span></div>
+                <ul class="schedule-list">{% for jornada in jornadas %}<li><strong>{{ jornada.fecha|date:"d/m/Y" }}</strong><span class="text-muted">{% if jornada.hora_inicio %}{{ jornada.hora_inicio|time:"H:i" }}–{{ jornada.hora_fin|time:"H:i" }}{% else %}Horario sin configurar{% endif %}</span></li>{% endfor %}</ul>
+            </section>
+            {% if es_voluntario and esta_inscripto %}
+            <section class="surface-card">
+                <h2 class="panel-title">Tu asistencia</h2><p class="panel-copy">{{ inscripcion.resumen_asistencia }}</p>
+                <div class="daily-records">{% for registro in inscripcion.asistencias.all %}<div class="daily-record"><span>{{ registro.jornada.fecha|date:"d/m/Y" }}</span><span class="badge-soft {% if registro.estado == 'presente' %}badge-soft-success{% else %}badge-soft-warning{% endif %}">{{ registro.get_estado_display }}</span></div>{% empty %}<p class="text-muted small mb-0">Todavía no tenés asistencia registrada.</p>{% endfor %}</div>
+            </section>
             {% endif %}
         </div>
-        <h2 class="fw-bold text-dark mb-2">{{ actividad.nombre }}</h2>
-        <p class="text-muted mb-0">{{ actividad.descripcion }}</p>
-    </div>
-
-    <div class="surface-card page-narrow">
-        <div class="meta-row mb-3">
-            <span><i class="bi bi-calendar3 me-1"></i>{{ actividad.fecha|date:"d/m/Y" }}</span>
-            {% if actividad.ubicacion %}
-                <span><i class="bi bi-geo-alt me-1"></i>{{ actividad.ubicacion }}</span>
+        <aside class="detail-actions" aria-label="Inscripción y confirmación de asistencia">
+            <section class="surface-card">
+                <h2 class="panel-title">Tu lugar en la actividad</h2>
+                <dl class="summary-list"><div><dt>Fecha de inicio</dt><dd>{{ actividad.fecha|date:"d/m/Y" }}</dd></div><div><dt>Cupo</dt><dd>{{ actividad.cupo }}</dd></div><div><dt>Inscritos</dt><dd>{{ actividad.cantidad_inscriptos }}</dd></div><div><dt>Disponibles</dt><dd>{{ actividad.cupos_disponibles }}</dd></div></dl>
+                <div class="cupo-track mb-4" aria-hidden="true"><span class="cupo-fill {% if actividad.esta_completa %}is-full{% endif %}" style="width: {% widthratio actividad.cantidad_inscriptos actividad.cupo 100 %}%;"></span></div>
+                {% if not es_voluntario %}<p class="panel-copy mb-0">Los coordinadores no se inscriben como voluntarios.</p>
+                {% elif esta_inscripto %}
+                    <div class="alert app-alert app-alert-success small mb-3" role="status">Ya estás inscripto en esta actividad.</div>
+                    {% if not actividad.ya_finalizo %}<form method="post" action="{% url 'voluntario:baja' actividad.pk %}" onsubmit="return confirm('¿Cancelar tu inscripción? Si no podés asistir, el cupo queda libre para otra persona.');">{% csrf_token %}<button type="submit" class="btn btn-brand-danger">Cancelar inscripción</button></form>{% endif %}
+                {% elif not actividad.inscripciones_abiertas %}<p class="panel-copy mb-0">Inscripciones cerradas. No quedan jornadas vigentes o futuras.</p>
+                {% elif not actividad.tiene_cupo %}<div class="alert app-alert app-alert-warning mb-0" role="status">La actividad está completa. No se pueden sumar más voluntarios.</div>
+                {% else %}<p class="panel-copy">Confirmá tu inscripción para participar en esta actividad.</p><form method="post" action="{% url 'voluntario:inscribirse' actividad.pk %}">{% csrf_token %}<button type="submit" class="btn btn-brand-primary">Confirmar inscripción</button></form>{% endif %}
+            </section>
+            {% if es_voluntario and esta_inscripto and actividad.inscripciones_abiertas %}
+            <section class="surface-card code-panel">
+                <h2 class="panel-title">Confirmá tu asistencia</h2><p class="panel-copy">Pedile el código al coordinador e ingresalo durante el horario de la jornada. Debés confirmar cada día por separado.</p>
+                <form method="post" action="{% url 'voluntario:confirmar_asistencia' actividad.pk %}">{% csrf_token %}<label class="form-label" for="codigo-asistencia">Código de asistencia</label><input type="text" id="codigo-asistencia" name="codigo" maxlength="12" required autocomplete="off" spellcheck="false" class="form-control custom-input mb-3"><button type="submit" class="btn btn-brand-primary">Confirmar asistencia de hoy</button></form>
+            </section>
             {% endif %}
-            <span><i class="bi bi-people me-1"></i>Cupo: {{ actividad.cupo }}</span>
-            <span><i class="bi bi-person-check me-1"></i>Inscriptos: {{ actividad.cantidad_inscriptos }}</span>
-            <span><i class="bi bi-ticket-perforated me-1"></i>Disponibles: {{ actividad.cupos_disponibles }}</span>
-        </div>
-        <div class="cupo-track mb-4">
-            <span class="cupo-fill {% if actividad.esta_completa %}is-full{% endif %}" style="width: {% widthratio actividad.cantidad_inscriptos actividad.cupo 100 %}%;"></span>
-        </div>
-
-        {% include 'includes/mensajes.html' %}
-
-        {% if not es_voluntario %}
-            <p class="text-muted small mb-0">Los coordinadores no se inscriben como voluntarios.</p>
-        {% elif esta_inscripto %}
-            <div class="alert app-alert app-alert-success mb-4" role="status">
-                Ya estás inscripto en esta actividad.
-            </div>
-            <form method="post" action="{% url 'voluntario:baja' actividad.pk %}"
-                  onsubmit="return confirm('¿Cancelar tu inscripción? Si no podés asistir, el cupo queda libre para otra persona.');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-brand-danger">
-                    Cancelar inscripción
-                </button>
-            </form>
-        {% elif not actividad.tiene_cupo %}
-            <div class="alert app-alert app-alert-warning mb-0" role="status">
-                La actividad está completa. No se pueden sumar más voluntarios.
-            </div>
-        {% else %}
-            <p class="text-muted small mb-3">Confirmá tu inscripción para participar en esta actividad.</p>
-            <form method="post" action="{% url 'voluntario:inscribirse' actividad.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-brand-primary">
-                    Confirmar inscripción
-                </button>
-            </form>
-        {% endif %}
+        </aside>
     </div>
-</div>
-</div>
+</div></main>
 {% endblock %}

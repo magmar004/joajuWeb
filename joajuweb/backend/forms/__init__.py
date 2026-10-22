@@ -1,9 +1,10 @@
 from .auth import CustomLoginForm, CustomSetPasswordForm, PerfilForm, RegistroForm
 
 try:
-    from .actividades import ActividadForm
+    from .actividades import ActividadForm, JornadasFormSet
 except ImportError:
     ActividadForm = None
+    JornadasFormSet = None
 
 _all_ = [
     'RegistroForm',
@@ -11,4 +12,5 @@ _all_ = [
     'CustomSetPasswordForm',
     'PerfilForm',
     'ActividadForm',
+    'JornadasFormSet',
 ]

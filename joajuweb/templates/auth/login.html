@@ -3,7 +3,7 @@
 {% block title %}Iniciar Sesión | JoajuWeb{% endblock %}
 
 {% block content %}
-<div class="container-fluid min-vh-100 d-flex p-0 overflow-hidden auth-shell">
+<main class="auth-shell auth-layout" id="contenido" tabindex="-1">
     <div class="col-lg-5 d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative auth-hero">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-diagram-3-fill fs-3 brand-mark"></i>
@@ -11,7 +11,7 @@
         </div>
 
         <div class="my-auto pe-lg-4">
-            <h1 class="display-6 fw-bold mb-3">El impacto se construye en comunidad.</h1>
+            <p class="auth-headline fw-bold mb-3">El impacto se construye en comunidad.</p>
             <p class="text-white-50 lead fs-6 mb-0">
                 Entrá para publicar actividades, sumarte a una jornada o ver cómo crece el programa.
             </p>
@@ -21,20 +21,20 @@
     </div>
 
     <div class="col-12 col-lg-7 d-flex align-items-center justify-content-center p-4 p-md-5 auth-panel">
-        <div class="w-100" style="max-width: 420px;">
+        <div class="auth-form">
             <div class="d-lg-none d-flex align-items-center gap-2 mb-4">
                 <i class="bi bi-diagram-3-fill fs-3 brand-mark"></i>
                 <span class="fs-4 fw-bold">Joaju</span>
             </div>
             <div class="mb-4">
-                <h2 class="fw-bold text-dark mb-1">Iniciar sesión</h2>
+                <h1 class="h2 fw-bold text-dark mb-1">Iniciar sesión</h1>
                 <p class="text-muted small mb-0">Ingresá tu usuario y contraseña para continuar.</p>
             </div>
 
             {% if form.errors %}
                 <div class="alert app-alert app-alert-danger alert-dismissible fade show mb-4" role="alert">
                     <strong>Error:</strong> Usuario o contraseña incorrectos.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
             {% endif %}
 
@@ -65,5 +65,5 @@
             </form>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}

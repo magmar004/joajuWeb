@@ -1,0 +1,17 @@
+<div class="jornada-entry" data-jornada>
+    {% for hidden in jornada_form.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
+    {{ jornada_form.non_field_errors }}
+    <div class="jornada-fields">
+        {% for field in jornada_form.visible_fields %}
+            {% if field.name == 'DELETE' %}
+            <div class="jornada-delete">{{ field }}<label class="form-label" for="{{ field.id_for_label }}">Eliminar jornada</label>{{ field.errors }}</div>
+            {% else %}
+            <div class="{% if field.name == 'fecha' %}jornada-date{% endif %}">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

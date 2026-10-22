@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Inscritos | JoajuWeb{% endblock %}
+{% block content %}
+{% include 'includes/navbar.html' %}
+<main class="page directory-page" id="contenido" tabindex="-1"><div class="layout-container">
+    <a href="{% url 'coordinador:gestionar' %}" class="back-link">Volver a gestionar</a>
+    <div class="page-heading">
+        <p class="hero-kicker">Voluntarios inscritos</p>
+        <h1 class="fw-bold text-dark mb-1">{{ actividad.nombre }}</h1>
+        <p class="text-muted">{{ inscripciones|length }} inscrito(s) en la actividad. Esta lista incluye a todos, independientemente de cuándo se hayan anotado o del horario de cada jornada.</p>
+        <a href="{% url 'coordinador:asistencia' actividad.pk %}" class="btn btn-brand-secondary btn-sm">Ver asistencia por jornada</a>
+    </div>
+    <div class="surface-card" id="lista-inscritos">
+        <label for="buscar-voluntario" class="form-label">Buscar voluntario</label>
+        <input type="search" id="buscar-voluntario" class="form-control custom-input mb-2" placeholder="Nombre, apellido, usuario o correo" autocomplete="off">
+        <p id="resultados-asistencia" class="text-muted small" role="status" aria-live="polite"></p>
+        <p id="sin-coincidencias" class="text-muted" hidden>No hay voluntarios que coincidan con la búsqueda.</p>
+        {% for inscripcion in inscripciones %}
+        <div data-voluntario data-busqueda="{{ inscripcion.voluntario.first_name }} {{ inscripcion.voluntario.last_name }} {{ inscripcion.voluntario.username }} {{ inscripcion.voluntario.email }}" class="directory-row">
+            <div><strong>{{ inscripcion.voluntario.get_full_name|default:inscripcion.voluntario.username }}</strong>
+            <div class="text-muted small">{{ inscripcion.voluntario.email }}</div></div>
+            <div class="text-muted small">Inscripción: {{ inscripcion.fecha_inscripcion|date:"d/m/Y H:i" }} (Asunción)</div>
+        </div>
+        {% empty %}<p class="text-muted">Todavía no hay voluntarios inscritos en esta actividad.</p>{% endfor %}
+    </div>
+</div></main>
+<script src="{% static 'js/asistencia.js' %}" defer></script>
+{% endblock %}

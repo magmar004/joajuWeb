@@ -5,16 +5,16 @@
 {% block content %}
 {% include 'includes/navbar.html' %}
 
-<div class="page">
-<div class="container">
-    <div class="surface-card hero-card">
+<main class="page" id="contenido" tabindex="-1">
+<div class="layout-container">
+    <div class="surface-card hero-card compact-state">
         <p class="hero-kicker">Joaju</p>
-        <h2 class="fw-bold text-dark mb-2">Esta sección no está disponible</h2>
+        <h1 class="fw-bold text-dark mb-2">Esta sección no está disponible</h1>
         <p class="text-muted mb-0">
-            El archivo de esta pantalla no está en el proyecto. El resto de la plataforma sigue funcionando.
+            Esta sección todavía no está disponible. Podés seguir explorando las otras opciones de Joaju.
         </p>
         <a href="{% url 'home' %}" class="btn btn-brand-primary mt-4">Volver al inicio</a>
     </div>
 </div>
-</div>
+</main>
 {% endblock %}

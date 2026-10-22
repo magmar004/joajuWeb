@@ -1,25 +1,27 @@
-<nav class="navbar app-navbar sticky-top">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{% url 'home' %}">
-            <i class="bi bi-diagram-3-fill brand-mark"></i> Joaju
+<nav class="navbar app-navbar sticky-top" aria-label="Navegación principal">
+    <div class="layout-container navbar-layout">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="{% url 'home' %}" aria-label="Joaju, ir al inicio">
+            <i class="bi bi-diagram-3-fill brand-mark" aria-hidden="true"></i> Joaju
         </a>
-        <div class="d-flex align-items-center gap-3">
-            <a href="{% url 'perfil' %}" class="user-chip">
-                {% if user.foto %}
-                    <img src="{{ user.foto.url }}" alt="" class="user-avatar">
-                {% else %}
-                    <span class="user-avatar">
-                        {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
-                    </span>
-                {% endif %}
+        <div class="navbar-links">
+            {% if user.es_coordinador %}
+                <a href="{% url 'coordinador:home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Mi panel</a>
+                <a href="{% url 'coordinador:gestionar' %}" {% if request.resolver_match.url_name == 'gestionar' or request.resolver_match.url_name == 'publicar' or request.resolver_match.url_name == 'editar' or request.resolver_match.url_name == 'asistencia' or request.resolver_match.url_name == 'inscritos' %}aria-current="page"{% endif %}>Actividades</a>
+                <a href="{% url 'coordinador:participacion' %}" {% if request.resolver_match.url_name == 'participacion' or request.resolver_match.url_name == 'historial_voluntario' %}aria-current="page"{% endif %}>Participación</a>
+                <a href="{% url 'coordinador:reportes' %}" {% if request.resolver_match.url_name == 'reportes' %}aria-current="page"{% endif %}>Reportes</a>
+            {% else %}
+                <a href="{% url 'voluntario:home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Mi panel</a>
+                <a href="{% url 'voluntario:listado' %}" {% if request.resolver_match.url_name == 'listado' or request.resolver_match.url_name == 'detalle' %}aria-current="page"{% endif %}>Actividades</a>
+                <a href="{% url 'voluntario:historial' %}" {% if request.resolver_match.url_name == 'historial' %}aria-current="page"{% endif %}>Mi historial</a>
+            {% endif %}
+        </div>
+        <div class="navbar-account">
+            <a href="{% url 'perfil' %}" class="user-chip" aria-label="Ver mi perfil">
+                {% if user.foto %}<img src="{{ user.foto.url }}" alt="" class="user-avatar">
+                {% else %}<span class="user-avatar" aria-hidden="true">{% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}</span>{% endif %}
                 <span class="d-none d-sm-inline">{{ user.get_full_name|default:user.username }}</span>
             </a>
-            <form method="post" action="{% url 'logout' %}" class="m-0">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-brand-ghost btn-sm">
-                    Salir
-                </button>
-            </form>
+            <form method="post" action="{% url 'logout' %}" class="m-0">{% csrf_token %}<button type="submit" class="btn btn-brand-ghost btn-sm">Salir</button></form>
         </div>
     </div>
 </nav>

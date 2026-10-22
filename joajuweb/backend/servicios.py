@@ -1,9 +1,12 @@
 # Reglas de negocio de actividades: crear, editar, cancelar e inscribir.
 from collections import OrderedDict
-from datetime import date
+import secrets
 
+from django.core import signing
+from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 
 from joajuweb.backend.models import (
     Actividad,
@@ -11,6 +14,7 @@ from joajuweb.backend.models import (
     EstadoActividad,
     EstadoAsistencia,
     Inscripcion,
+    AsistenciaJornada,
     TipoActividad,
     Usuario,
 )
@@ -28,35 +32,92 @@ class InscripcionError(Exception):
 class PerfilError(Exception):
     pass
 
+
+class ActividadError(Exception):
+    pass
+
+
+def _autorizar_coordinador(actividad, usuario):
+    if not usuario.is_authenticated or not usuario.es_coordinador() or actividad.creado_por_id != usuario.pk:
+        raise PermissionDenied
+
+
+def _horarios_guardados(actividad):
+    return list(actividad.jornadas.values_list('pk', 'fecha', 'hora_inicio', 'hora_fin'))
+
+
+def _horarios_formulario(jornadas):
+    return sorted([
+        (form.instance.pk, form.cleaned_data['fecha'], form.cleaned_data.get('hora_inicio'), form.cleaned_data.get('hora_fin'))
+        for form in jornadas.forms
+        if form.cleaned_data and not form.cleaned_data.get('DELETE')
+    ], key=lambda item: item[1])
+
+
+def _guardar_jornadas(actividad, jornadas):
+    jornadas.instance = actividad
+    jornadas.save()
+
+
+def _crear_con_codigo(actividad):
+    # El índice único es la garantía final; cada intento tiene su propio savepoint.
+    from joajuweb.backend.models.actividades import generar_codigo_asistencia
+    for _ in range(5):
+        actividad.codigo_asistencia = generar_codigo_asistencia()
+        try:
+            with transaction.atomic():
+                actividad.save()
+            return
+        except IntegrityError:
+            if not Actividad.objects.filter(codigo_asistencia=actividad.codigo_asistencia).exists():
+                raise
+    raise ActividadError('No se pudo generar el código. Intentá nuevamente.')
+
 CAMPOS_AVISO = ('nombre', 'descripcion', 'tipo', 'area', 'ubicacion', 'fecha', 'cupo')
 
 
-def guardar_borrador(form, coordinador):
-    return _persistir(form, coordinador, EstadoActividad.BORRADOR)
+def guardar_borrador(form, coordinador, jornadas):
+    return _persistir(form, coordinador, EstadoActividad.BORRADOR, jornadas)
 
 
-def publicar(form, coordinador):
-    return _persistir(form, coordinador, EstadoActividad.PUBLICADA)
+def publicar(form, coordinador, jornadas):
+    return _persistir(form, coordinador, EstadoActividad.PUBLICADA, jornadas)
 
 
-def _persistir(form, coordinador, estado):
+@transaction.atomic
+def _persistir(form, coordinador, estado, jornadas):
+    if not coordinador.is_authenticated or not coordinador.es_coordinador():
+        raise PermissionDenied
     actividad = form.save(commit=False)
     actividad.creado_por = coordinador
     actividad.estado = estado
-    actividad.save()
+    _crear_con_codigo(actividad)
+    _guardar_jornadas(actividad, jornadas)
     return actividad
 
 
-def modificar_actividad(form, publicar_ahora=False):
+@transaction.atomic
+def modificar_actividad(form, coordinador, jornadas, publicar_ahora=False):
     # is_valid() ya escribió los datos nuevos en instance; leemos el original de la BD.
-    original = Actividad.objects.get(pk=form.instance.pk)
+    original = Actividad.objects.select_for_update().get(pk=form.instance.pk)
+    _autorizar_coordinador(original, coordinador)
+    if not original.se_puede_editar():
+        raise ActividadError('Una actividad cancelada o finalizada no se puede modificar.')
+    if form.cleaned_data['cupo'] < original.cantidad_inscriptos():
+        raise ActividadError('El cupo ya no alcanza para los inscriptos actuales. Revisá el formulario.')
+    horarios_cambiaron = _horarios_guardados(original) != _horarios_formulario(jornadas)
+    if (horarios_cambiaron or original.fecha != form.cleaned_data['fecha']) and AsistenciaJornada.objects.filter(jornada__actividad=original).exists():
+        raise ActividadError('No se puede reprogramar una actividad que ya tiene asistencia registrada.')
     estaba_publicada = original.esta_publicada()
     cambios = _cambios_relevantes(original, form.cleaned_data)
+    if horarios_cambiaron:
+        cambios.append('Jornadas u horarios de Asunción actualizados. Consultá el detalle de la actividad.')
 
     actividad = form.save(commit=False)
     if publicar_ahora and actividad.esta_borrador():
         actividad.estado = EstadoActividad.PUBLICADA
     actividad.save()
+    _guardar_jornadas(actividad, jornadas)
 
     avisos = 0
     if estaba_publicada and cambios:
@@ -64,13 +125,32 @@ def modificar_actividad(form, publicar_ahora=False):
     return actividad, avisos
 
 
-def cancelar_actividad(actividad):
+@transaction.atomic
+def cancelar_actividad(actividad, coordinador):
+    actividad = Actividad.objects.select_for_update().get(pk=actividad.pk)
+    _autorizar_coordinador(actividad, coordinador)
     if not actividad.se_puede_cancelar():
         return actividad, 0
     avisos = avisar_cancelacion(actividad)
     actividad.estado = EstadoActividad.CANCELADA
     actividad.save(update_fields=['estado'])
     return actividad, avisos
+
+
+@transaction.atomic
+def finalizar_actividad(actividad, coordinador):
+    actividad = Actividad.objects.select_for_update().get(pk=actividad.pk)
+    _autorizar_coordinador(actividad, coordinador)
+    if actividad.esta_finalizada():
+        return actividad
+    if not actividad.esta_publicada():
+        raise ActividadError('Solo se pueden dar por terminadas actividades publicadas.')
+    if not actividad.se_puede_finalizar():
+        raise ActividadError('Todavía quedan jornadas vigentes o futuras. Podés dar por terminada la actividad después del cierre de la última jornada.')
+    actividad.estado = EstadoActividad.FINALIZADA
+    actividad.finalizada_en = timezone.now()
+    actividad.save(update_fields=['estado', 'finalizada_en'])
+    return actividad
 
 
 def inscribir_voluntario(actividad, voluntario):
@@ -81,6 +161,10 @@ def inscribir_voluntario(actividad, voluntario):
     try:
         with transaction.atomic():
             actividad_bloqueada = Actividad.objects.select_for_update().get(pk=actividad.pk)
+            if not actividad_bloqueada.esta_publicada():
+                raise InscripcionError('Solo podés inscribirte en actividades publicadas.')
+            if not actividad_bloqueada.inscripciones_abiertas():
+                raise InscripcionError('Las inscripciones están cerradas: no quedan jornadas vigentes o futuras.')
             if Inscripcion.objects.filter(actividad=actividad_bloqueada, voluntario=voluntario).exists():
                 raise InscripcionError('Ya estás inscripto en esta actividad.')
             _validar_cupo_disponible(actividad_bloqueada)
@@ -96,6 +180,7 @@ def historial_voluntario(voluntario):
     return (
         Inscripcion.objects.filter(voluntario=voluntario)
         .select_related('actividad', 'actividad__creado_por')
+        .prefetch_related('asistencias__jornada', 'actividad__jornadas')
         .order_by('-actividad__fecha', '-fecha_inscripcion')
     )
 
@@ -123,52 +208,131 @@ def voluntarios_de_coordinador(coordinador):
     )
 
 
+@transaction.atomic
 def cancelar_inscripcion(actividad, voluntario):
-    borradas, _ = Inscripcion.objects.filter(
+    actividad = Actividad.objects.select_for_update().get(pk=actividad.pk)
+    if actividad.ya_finalizo():
+        raise InscripcionError('La actividad ya terminó. La inscripción se conserva en tu historial.')
+    inscripcion = Inscripcion.objects.filter(
         actividad=actividad,
         voluntario=voluntario,
-    ).delete()
-    if not borradas:
+    ).first()
+    if not inscripcion:
         raise InscripcionError('No estás inscripto en esta actividad.')
+    if inscripcion.asistencias.exists():
+        raise InscripcionError('No podés cancelar una inscripción que ya tiene asistencia registrada.')
+    inscripcion.delete()
 
 
-def registrar_asistencia(actividad, marcas):
-    if not actividad.se_puede_registrar_asistencia():
-        raise AsistenciaError(
-            'La asistencia se registra cuando la actividad ya finalizó y tiene inscriptos.'
+def inscripciones_de_jornada(jornada):
+    # Las jornadas históricas pueden contener registros previos a la propia inscripción.
+    return jornada.actividad.inscripciones.filter(
+        Q(fecha_inscripcion__lt=jornada.cierre()) | Q(asistencias__jornada=jornada)
+    ).distinct().select_related('voluntario').order_by('voluntario__first_name', 'voluntario__last_name', 'voluntario__username')
+
+
+def _estado_formulario(jornada):
+    versiones = dict(jornada.asistencias.values_list('inscripcion_id', 'version'))
+    return {
+        'jornada': jornada.pk,
+        'horario': [str(jornada.fecha), str(jornada.hora_inicio), str(jornada.hora_fin)],
+        'zona_horaria': timezone.get_default_timezone_name(),
+        'versiones': {str(item.pk): versiones.get(item.pk, 0) for item in inscripciones_de_jornada(jornada)},
+    }
+
+
+def version_asistencia(jornada):
+    return signing.dumps(_estado_formulario(jornada), salt='asistencia-jornada')
+
+
+@transaction.atomic
+def registrar_asistencia(actividad, jornada_id, marcas, coordinador, version):
+    actividad = Actividad.objects.select_for_update().get(pk=actividad.pk)
+    _autorizar_coordinador(actividad, coordinador)
+    jornada = actividad.jornadas.filter(pk=jornada_id).first()
+    if not actividad.permite_asistencia_manual() or jornada is None or not jornada.finalizo():
+        raise AsistenciaError('El registro manual solo está disponible al terminar la jornada de una actividad publicada o finalizada.')
+    try:
+        anterior = signing.loads(version, salt='asistencia-jornada')
+    except (signing.BadSignature, TypeError):
+        raise AsistenciaError('El formulario no es válido. Revisá los estados y volvé a guardar.')
+    if anterior != _estado_formulario(jornada):
+        raise AsistenciaError('Cambiaron las inscripciones, el horario o la asistencia desde que abriste el formulario. Revisá los estados actuales antes de guardar nuevamente.')
+    inscripciones = list(inscripciones_de_jornada(jornada))
+    if not inscripciones:
+        raise AsistenciaError('No hay inscriptos elegibles en esta jornada.')
+    if set(marcas) != {item.pk for item in inscripciones} or any(valor not in {EstadoAsistencia.PRESENTE, EstadoAsistencia.AUSENTE} for valor in marcas.values()):
+        raise AsistenciaError('Marcá presente o ausente en todos los voluntarios de la jornada.')
+    for inscripcion in inscripciones:
+        registro, creado = AsistenciaJornada.objects.get_or_create(
+            inscripcion=inscripcion, jornada=jornada,
+            defaults={'estado': marcas[inscripcion.pk], 'origen': AsistenciaJornada.Origen.MANUAL, 'actualizado_en': timezone.now(), 'registrado_por': coordinador},
         )
-    validos = {EstadoAsistencia.PRESENTE, EstadoAsistencia.AUSENTE}
-    inscripciones = list(actividad.inscripciones.all())
-    for inscripcion in inscripciones:
-        valor = marcas.get(inscripcion.pk)
-        if valor not in validos:
-            raise AsistenciaError('Marcá presente o ausente en todos los voluntarios.')
-    for inscripcion in inscripciones:
-        inscripcion.asistencia = marcas[inscripcion.pk]
-        inscripcion.save(update_fields=['asistencia'])
+        if not creado and registro.estado != marcas[inscripcion.pk]:
+            registro.estado = marcas[inscripcion.pk]
+            registro.origen = AsistenciaJornada.Origen.MANUAL
+            registro.actualizado_en = timezone.now()
+            registro.registrado_por = coordinador
+            registro.version += 1
+            registro.save()
     return len(inscripciones)
+
+
+@transaction.atomic
+def confirmar_asistencia(actividad_id, voluntario, codigo):
+    if not voluntario.is_authenticated or voluntario.es_coordinador():
+        raise PermissionDenied
+    actividad = Actividad.objects.select_for_update().get(pk=actividad_id)
+    if not actividad.esta_publicada():
+        raise AsistenciaError('La actividad no está disponible para confirmar asistencia.')
+    codigo = (codigo or '').strip().upper()
+    if not codigo.isascii() or not secrets.compare_digest(codigo, actividad.codigo_asistencia):
+        raise AsistenciaError('El código es incorrecto o corresponde a otra actividad.')
+    inscripcion = actividad.inscripciones.filter(voluntario=voluntario).first()
+    if inscripcion is None:
+        raise AsistenciaError('No estás inscripto en esta actividad.')
+    ahora = timezone.now()
+    jornada = next((item for item in actividad.jornadas.all() if item.inicio() is not None and item.inicio() <= ahora < item.cierre()), None)
+    if jornada is None:
+        raise AsistenciaError('Estás fuera del horario permitido para confirmar asistencia (hora de Asunción).')
+    if inscripcion.fecha_inscripcion > ahora:
+        raise AsistenciaError('Tu inscripción no es válida para esta jornada.')
+    registro = jornada.asistencias.filter(inscripcion=inscripcion).first()
+    if registro:
+        if registro.estado == EstadoAsistencia.AUSENTE:
+            raise AsistenciaError('Ya figurás como ausente. Solicitá al coordinador que revise el registro.')
+        raise AsistenciaError('Tu asistencia ya fue registrada para esta jornada.')
+    return AsistenciaJornada.objects.create(
+        jornada=jornada, inscripcion=inscripcion, estado=EstadoAsistencia.PRESENTE,
+        origen=AsistenciaJornada.Origen.CODIGO, actualizado_en=ahora, registrado_por=voluntario,
+    )
 
 
 def generar_reporte(coordinador, fecha_desde=None, fecha_hasta=None, tipo=None):
     actividades = Actividad.objects.filter(creado_por=coordinador)
+    filtro_jornadas = Q()
+    filtro_fechas = Q()
     if fecha_desde:
-        actividades = actividades.filter(fecha__gte=fecha_desde)
+        filtro_fechas &= Q(jornadas__fecha__gte=fecha_desde)
+        filtro_jornadas &= Q(inscripciones__asistencias__jornada__fecha__gte=fecha_desde)
     if fecha_hasta:
-        actividades = actividades.filter(fecha__lte=fecha_hasta)
+        filtro_fechas &= Q(jornadas__fecha__lte=fecha_hasta)
+        filtro_jornadas &= Q(inscripciones__asistencias__jornada__fecha__lte=fecha_hasta)
     if tipo:
         actividades = actividades.filter(tipo=tipo)
+    actividades = actividades.filter(filtro_fechas)
 
     actividades = list(
         actividades.annotate(
             n_inscriptos=Count('inscripciones', distinct=True),
             n_presentes=Count(
-                'inscripciones',
-                filter=Q(inscripciones__asistencia=EstadoAsistencia.PRESENTE),
+                'inscripciones__asistencias',
+                filter=Q(inscripciones__asistencias__estado=EstadoAsistencia.PRESENTE) & filtro_jornadas,
                 distinct=True,
             ),
             n_ausentes=Count(
-                'inscripciones',
-                filter=Q(inscripciones__asistencia=EstadoAsistencia.AUSENTE),
+                'inscripciones__asistencias',
+                filter=Q(inscripciones__asistencias__estado=EstadoAsistencia.AUSENTE) & filtro_jornadas,
                 distinct=True,
             ),
         ).order_by('-fecha', 'nombre')
@@ -177,6 +341,7 @@ def generar_reporte(coordinador, fecha_desde=None, fecha_hasta=None, tipo=None):
     inscripciones = list(
         Inscripcion.objects.filter(actividad_id__in=ids_actividades)
         .select_related('voluntario', 'actividad')
+        .prefetch_related('asistencias__jornada')
         .order_by('-actividad__fecha', 'voluntario__username')
     )
     voluntarios = list(
@@ -186,17 +351,26 @@ def generar_reporte(coordinador, fecha_desde=None, fecha_hasta=None, tipo=None):
             n_inscripciones=Count(
                 'inscripciones',
                 filter=Q(inscripciones__actividad_id__in=ids_actividades),
+                distinct=True,
             ),
             n_presentes=Count(
-                'inscripciones',
+                'inscripciones__asistencias',
                 filter=Q(
                     inscripciones__actividad_id__in=ids_actividades,
-                    inscripciones__asistencia=EstadoAsistencia.PRESENTE,
-                ),
+                    inscripciones__asistencias__estado=EstadoAsistencia.PRESENTE,
+                ) & filtro_jornadas,
+                distinct=True,
             ),
         )
         .order_by('first_name', 'last_name', 'username')
     )
+
+    for inscripcion in inscripciones:
+        inscripcion.registros_reporte = [
+            item for item in inscripcion.asistencias.all()
+            if (not fecha_desde or item.jornada.fecha >= fecha_desde)
+            and (not fecha_hasta or item.jornada.fecha <= fecha_hasta)
+        ]
 
     return {
         'totales': {
@@ -205,12 +379,8 @@ def generar_reporte(coordinador, fecha_desde=None, fecha_hasta=None, tipo=None):
             'canceladas': sum(1 for item in actividades if item.esta_cancelada()),
             'voluntarios': len(voluntarios),
             'inscripciones': len(inscripciones),
-            'presentes': sum(
-                1 for item in inscripciones if item.asistencia == EstadoAsistencia.PRESENTE
-            ),
-            'ausentes': sum(
-                1 for item in inscripciones if item.asistencia == EstadoAsistencia.AUSENTE
-            ),
+            'presentes': sum(item.n_presentes for item in actividades),
+            'ausentes': sum(item.n_ausentes for item in actividades),
         },
         'actividades': actividades,
         'voluntarios': voluntarios,
@@ -224,7 +394,7 @@ def _validar_cupo_disponible(actividad):
 
 
 def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None):
-    actividades = Actividad.publicadas()
+    actividades = Actividad.vigentes()
     if tipo:
         actividades = actividades.filter(tipo=tipo)
     if area:
@@ -259,9 +429,8 @@ def _agrupar_por_choices(actividades, campo, choices):
 
 
 def resumen_inicio_voluntario(voluntario, limite_abiertas=3):
-    hoy = date.today()
     ids_inscriptos = set(voluntario.inscripciones.values_list('actividad_id', flat=True))
-    proximas = list(Actividad.publicadas().filter(fecha__gte=hoy))
+    proximas = list(Actividad.vigentes())
     proxima = next((actividad for actividad in proximas if actividad.id in ids_inscriptos), None)
     abiertas = [
         actividad for actividad in proximas

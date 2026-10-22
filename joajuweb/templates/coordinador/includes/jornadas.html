@@ -1,0 +1,14 @@
+{% load static %}
+<div class="mb-4" id="jornadas-editor">
+    <h2 class="panel-title">Jornadas y horarios de Asunción, Paraguay</h2>
+    <p class="text-muted small">Ingresá las horas de Paraguay (America/Asuncion). Agregá una jornada por día, con inicio y cierre dentro de esa fecha local. La fecha de la actividad debe coincidir con la primera jornada. Marcá Eliminar para quitar una jornada antes de guardar.</p>
+    {{ form.non_field_errors }}
+    {{ jornadas.management_form }}
+    <div class="text-danger">{{ jornadas.non_form_errors }}</div>
+    <div id="jornadas-lista">
+        {% for jornada_form in jornadas %}{% include 'coordinador/includes/jornada_form.html' %}{% endfor %}
+    </div>
+    <template id="jornada-vacia">{% include 'coordinador/includes/jornada_form.html' with jornada_form=jornadas.empty_form %}</template>
+    <button type="button" id="agregar-jornada" class="btn btn-brand-secondary btn-sm">Agregar jornada</button>
+</div>
+<script src="{% static 'js/jornadas.js' %}" defer></script>

@@ -1,24 +1,24 @@
 {% if inscripciones %}
-    <div class="row g-3">
+    <div class="card-grid card-grid--history">
         {% for inscripcion in inscripciones %}
-            <div class="col-md-6">
+            <div>
                 <div class="activity-card">
                     <div class="d-flex flex-wrap gap-2 mb-3">
-                        {% if inscripcion.estado_participacion == 'participo' %}
-                            <span class="badge-soft badge-soft-success">Presente</span>
-                        {% elif inscripcion.estado_participacion == 'ausente' %}
-                            <span class="badge-soft badge-soft-warning">Ausente</span>
-                        {% elif inscripcion.estado_participacion == 'pendiente' %}
-                            <span class="badge-soft badge-soft-muted">Pendiente</span>
-                        {% elif inscripcion.estado_participacion == 'cancelada' %}
+                        {% if inscripcion.actividad.esta_cancelada %}
                             <span class="badge-soft badge-soft-danger">Cancelada</span>
+                        {% elif inscripcion.actividad.ya_finalizo %}
+                            <span class="badge-soft badge-soft-muted">Finalizada</span>
                         {% else %}
                             <span class="badge-soft badge-soft-info">Inscripto</span>
                         {% endif %}
                         <span class="badge-soft badge-soft-muted">{{ inscripcion.actividad.get_tipo_display }}</span>
                     </div>
-                    <h5 class="fw-bold mb-2">{{ inscripcion.actividad.nombre }}</h5>
+                    <h3 class="fw-bold mb-2">{{ inscripcion.actividad.nombre }}</h3>
                     <p class="text-muted small mb-3">{{ inscripcion.actividad.descripcion|truncatewords:22 }}</p>
+                    <p class="small">{{ inscripcion.resumen_asistencia }}</p>
+                    {% for registro in inscripcion.asistencias.all %}
+                        <p class="small mb-1">{{ registro.jornada.fecha|date:"d/m/Y" }} · {{ registro.get_estado_display }}</p>
+                    {% empty %}<p class="text-muted small">Sin asistencia registrada.</p>{% endfor %}
                     <div class="meta-row mt-auto">
                         <span><i class="bi bi-calendar3 me-1"></i>{{ inscripcion.actividad.fecha|date:"d/m/Y" }}</span>
                         <span><i class="bi bi-person-plus me-1"></i>Inscripción: {{ inscripcion.fecha_inscripcion|date:"d/m/Y" }}</span>
@@ -30,7 +30,7 @@
 {% else %}
     <div class="surface-card empty-state">
         <i class="bi bi-journal-text d-block"></i>
-        <h5 class="fw-bold text-dark">Todavía no hay participación registrada</h5>
+        <h3 class="h5 fw-bold text-dark">Todavía no hay participación registrada</h3>
         <p class="text-muted small mb-0">Cuando te inscribas en una actividad, va a aparecer acá.</p>
     </div>
 {% endif %}

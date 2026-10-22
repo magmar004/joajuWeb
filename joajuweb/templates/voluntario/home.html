@@ -1,43 +1,19 @@
 {% extends 'base.html' %}
-
 {% block title %}Panel | JoajuWeb{% endblock %}
-
 {% block content %}
 {% include 'includes/navbar.html' %}
-
-<div class="page">
-<div class="container">
-    <div class="surface-card hero-card mb-4">
-        <p class="hero-kicker">Voluntario</p>
-        <h2 class="fw-bold text-dark mb-2">¡Bienvenido a Joaju!</h2>
-        <p class="text-muted mb-0">
-            Hola, <strong>{{ user.get_full_name|default:user.username }}</strong>.
-            Elegí una actividad y sumate cuando quieras participar.
-        </p>
-    </div>
-
+<main class="page dashboard-page" id="contenido" tabindex="-1"><div class="layout-container">
+    <header class="surface-card hero-card dashboard-hero">
+        <div><p class="hero-kicker">Voluntario</p><h1 class="h2 fw-bold text-dark mb-2">¡Bienvenido a Joaju!</h1><p class="text-muted mb-0">Hola, <strong>{{ user.get_full_name|default:user.username }}</strong>. Elegí una actividad y sumate cuando quieras participar.</p></div>
+        <div class="button-group"><a href="{% url 'voluntario:historial' %}" class="btn btn-brand-secondary">Mi historial</a><a href="{% url 'voluntario:listado' %}" class="btn btn-brand-primary">Explorar actividades <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a></div>
+    </header>
     {% include 'includes/mensajes.html' %}
-    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">Actividades publicadas</h3>
-            <p class="text-muted small mb-0">Oportunidades abiertas para sumarte.</p>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a href="{% url 'voluntario:historial' %}" class="btn btn-brand-secondary btn-sm">
-                Mi historial
-            </a>
-            <a href="{% url 'voluntario:listado' %}" class="btn btn-brand-primary btn-sm">
-                Ver todas <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-    </div>
-    {% if proxima or abiertas or grupos %}
-        {% include 'voluntario/includes/tarjetas.html' %}
-    {% else %}
-        <div class="surface-card mt-3">
-            <p class="text-muted mb-0">Cuando las actividades estén disponibles, van a aparecer acá.</p>
-        </div>
+    {% if proxima %}
+    <section aria-labelledby="proxima-actividad"><div class="section-label"><h2 class="panel-title" id="proxima-actividad">Tu próxima actividad</h2><span class="badge-soft badge-soft-success">Inscripto</span></div>{% include 'voluntario/includes/tarjetas.html' with actividades=proxima_lista destacada=True %}</section>
     {% endif %}
-</div>
-</div>
+    <section aria-labelledby="actividades-abiertas">
+        <div class="section-label"><h2 class="panel-title" id="actividades-abiertas">Actividades para sumarte</h2><a href="{% url 'voluntario:listado' %}" class="back-link mb-0">Ver todas <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a></div>
+        {% include 'voluntario/includes/tarjetas.html' with actividades=abiertas %}
+    </section>
+</div></main>
 {% endblock %}

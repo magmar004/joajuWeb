@@ -5,8 +5,8 @@
 {% block content %}
 {% include 'includes/navbar.html' %}
 
-<div class="page">
-<div class="container">
+<main class="page" id="contenido" tabindex="-1">
+<div class="layout-container">
     {% if es_propio %}
         <a href="{% url 'voluntario:home' %}" class="back-link">
             <i class="bi bi-arrow-left me-1"></i> Volver al panel
@@ -20,15 +20,15 @@
     <div class="page-heading">
         <p class="hero-kicker">Trayectoria</p>
         {% if es_propio %}
-            <h2 class="fw-bold text-dark mb-1">Mi historial de voluntariado</h2>
+            <h1 class="fw-bold text-dark mb-1">Mi historial de voluntariado</h1>
             <p class="text-muted mb-0">Actividades en las que te inscribiste, con el estado de tu participación.</p>
         {% else %}
-            <h2 class="fw-bold text-dark mb-1">Historial de {{ voluntario.get_full_name|default:voluntario.username }}</h2>
+            <h1 class="fw-bold text-dark mb-1">Historial de {{ voluntario.get_full_name|default:voluntario.username }}</h1>
             <p class="text-muted mb-0">Registro de participación de este voluntario.</p>
         {% endif %}
     </div>
 
     {% include 'voluntario/includes/historial_tarjetas.html' %}
 </div>
-</div>
+</main>
 {% endblock %}

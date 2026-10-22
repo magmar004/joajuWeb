@@ -5,15 +5,15 @@
 {% block content %}
 {% include 'includes/navbar.html' %}
 
-<div class="page">
-<div class="container">
+<main class="page" id="contenido" tabindex="-1">
+<div class="layout-container">
     <a href="{% url 'coordinador:home' %}" class="back-link">
         <i class="bi bi-arrow-left me-1"></i> Volver al panel
     </a>
 
     <div class="page-heading">
         <p class="hero-kicker">Impacto</p>
-        <h2 class="fw-bold text-dark mb-1">Reportes de voluntariado</h2>
+        <h1 class="fw-bold text-dark mb-1">Reportes de voluntariado</h1>
         <p class="text-muted mb-0">Totales y detalle de actividades, voluntarios e inscripciones.</p>
     </div>
 
@@ -43,35 +43,17 @@
         </div>
     </form>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="stat-card">
-                <span class="stat-label">Actividades</span>
-                <span class="stat-value">{{ totales.actividades }}</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card">
-                <span class="stat-label">Voluntarios</span>
-                <span class="stat-value">{{ totales.voluntarios }}</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card">
-                <span class="stat-label">Inscripciones</span>
-                <span class="stat-value">{{ totales.inscripciones }}</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="stat-card">
-                <span class="stat-label">Presentes / ausentes</span>
-                <span class="stat-value">{{ totales.presentes }} / {{ totales.ausentes }}</span>
-            </div>
-        </div>
+    <div class="stats-grid">
+        <div class="stat-card"><span class="stat-label">Actividades</span><span class="stat-value">{{ totales.actividades }}</span></div>
+        <div class="stat-card"><span class="stat-label">Voluntarios</span><span class="stat-value">{{ totales.voluntarios }}</span></div>
+        <div class="stat-card"><span class="stat-label">Inscripciones</span><span class="stat-value">{{ totales.inscripciones }}</span></div>
+        <div class="stat-card"><span class="stat-label">Presentes / ausentes por jornada</span><span class="stat-value">{{ totales.presentes }} / {{ totales.ausentes }}</span></div>
     </div>
 
+    <div class="report-grid">
+    <section>
     <div class="section-label">
-        <h3>Actividades</h3>
+        <h2 class="panel-title">Actividades</h2>
         <span class="section-count">{{ actividades|length }}</span>
     </div>
     <div class="surface-card mb-4">
@@ -83,7 +65,7 @@
                         <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
                     </div>
                     <div class="text-muted small">
-                        {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes
+                        {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes (por jornada)
                     </div>
                 </div>
             {% endfor %}
@@ -92,8 +74,10 @@
         {% endif %}
     </div>
 
+    </section>
+    <section>
     <div class="section-label">
-        <h3>Voluntarios</h3>
+        <h2 class="panel-title">Voluntarios</h2>
         <span class="section-count">{{ voluntarios|length }}</span>
     </div>
     <div class="surface-card mb-4">
@@ -105,7 +89,7 @@
                         <div class="text-muted small">{{ voluntario.email }}</div>
                     </div>
                     <div class="text-muted small">
-                        {{ voluntario.n_inscripciones }} inscripción(es) · {{ voluntario.n_presentes }} presente(s)
+                        {{ voluntario.n_inscripciones }} inscripción(es) · {{ voluntario.n_presentes }} presente(s) por jornada
                     </div>
                 </div>
             {% endfor %}
@@ -114,8 +98,10 @@
         {% endif %}
     </div>
 
+    </section>
+    <section class="report-wide">
     <div class="section-label">
-        <h3>Inscripciones</h3>
+        <h2 class="panel-title">Inscripciones</h2>
         <span class="section-count">{{ inscripciones|length }}</span>
     </div>
     <div class="surface-card">
@@ -127,14 +113,17 @@
                         <div class="text-muted small">{{ inscripcion.actividad.nombre }} · {{ inscripcion.actividad.get_tipo_display }}</div>
                     </div>
                     <div class="text-muted small">
-                        {{ inscripcion.actividad.fecha|date:"d/m/Y" }} · {{ inscripcion.get_asistencia_display }}
+                        {% for registro in inscripcion.registros_reporte %}
+                            <div>{{ registro.jornada.fecha|date:"d/m/Y" }} · {{ registro.get_estado_display }}</div>
+                        {% empty %}Sin asistencia en el período.{% endfor %}
                     </div>
                 </div>
             {% endfor %}
         {% else %}
             <p class="text-muted small mb-0">No hay inscripciones con esos filtros.</p>
         {% endif %}
+    </div>    </section>
     </div>
 </div>
-</div>
+</main>
 {% endblock %}

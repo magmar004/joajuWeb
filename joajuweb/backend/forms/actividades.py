@@ -1,7 +1,7 @@
 # Formulario de carga de actividad. El estado lo define el servicio, no este form.
 from django import forms
 
-from joajuweb.backend.models import Actividad
+from joajuweb.backend.models import Actividad, JornadaActividad
 
 
 class ActividadForm(forms.ModelForm):
@@ -72,3 +72,43 @@ class ActividadForm(forms.ModelForm):
                     f"Ya hay {inscriptos} voluntarios inscriptos. El cupo no puede ser menor."
                 )
         return cupo
+
+
+class JornadaForm(forms.ModelForm):
+    class Meta:
+        model = JornadaActividad
+        fields = ('fecha', 'hora_inicio', 'hora_fin')
+        widgets = {
+            'fecha': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control custom-input'}),
+            'hora_inicio': forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'class': 'form-control custom-input'}),
+            'hora_fin': forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'class': 'form-control custom-input'}),
+        }
+
+    def clean(self):
+        datos = super().clean()
+        # Una jornada histórica sin horario puede conservarse sin cambios.
+        historica = self.instance.pk and self.instance.hora_inicio is None and self.instance.hora_fin is None
+        if not historica or datos.get('hora_inicio') or datos.get('hora_fin'):
+            for campo in ('hora_inicio', 'hora_fin'):
+                if not datos.get(campo):
+                    self.add_error(campo, 'Completá el horario de Asunción.')
+        return datos
+
+
+class BaseJornadasFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+        fechas = [form.cleaned_data['fecha'] for form in self.forms if form.cleaned_data and not form.cleaned_data.get('DELETE')]
+        if len(fechas) != len(set(fechas)):
+            raise forms.ValidationError('Solo puede haber una jornada por fecha de Asunción.')
+        if fechas and self.instance.fecha and min(fechas) != self.instance.fecha:
+            raise forms.ValidationError('La fecha de la actividad debe coincidir con su primera jornada.')
+
+
+JornadasFormSet = forms.inlineformset_factory(
+    Actividad, JornadaActividad, form=JornadaForm, formset=BaseJornadasFormSet,
+    extra=0, min_num=1, validate_min=True, can_delete=True,
+    max_num=366, validate_max=True,
+)

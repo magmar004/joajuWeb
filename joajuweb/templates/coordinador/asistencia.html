@@ -1,54 +1,76 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Asistencia | JoajuWeb{% endblock %}
-
 {% block content %}
 {% include 'includes/navbar.html' %}
-
-<div class="page">
-<div class="container">
-    <a href="{% url 'coordinador:gestionar' %}" class="back-link">
-        <i class="bi bi-arrow-left me-1"></i> Volver a gestionar
-    </a>
-
-    <div class="page-heading">
-        <p class="hero-kicker">Asistencia</p>
-        <h2 class="fw-bold text-dark mb-1">{{ actividad.nombre }}</h2>
-        <p class="text-muted mb-0">
-            Marcá presente o ausente en cada voluntario. La actividad fue el {{ actividad.fecha|date:"d/m/Y" }}.
-        </p>
-    </div>
-
+<main class="page attendance-page {% if editable %}attendance-page--manual{% endif %}" id="contenido" tabindex="-1"><div class="layout-container">
+    <a href="{% url 'coordinador:gestionar' %}" class="back-link"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Volver a gestionar</a>
+    <header class="page-heading">
+        <p class="hero-kicker">Asistencia por jornada · Asunción, Paraguay</p>
+        <h1 class="fw-bold text-dark mb-2">{{ actividad.nombre }}</h1>
+        <p class="text-muted mb-0">Durante cada jornada los voluntarios confirman con el código. Al cerrar, podés registrar y corregir los estados.</p>
+    </header>
     {% include 'includes/mensajes.html' %}
-
-    <form method="post" class="surface-card page-narrow">
-        {% csrf_token %}
-        {% for inscripcion in inscripciones %}
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
-                <div>
-                    <strong>{{ inscripcion.voluntario.get_full_name|default:inscripcion.voluntario.username }}</strong>
-                    <div class="text-muted small">{{ inscripcion.voluntario.email }}</div>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <label class="choice-pill choice-pill--present">
-                        <input type="radio" class="form-check-input" name="asistencia_{{ inscripcion.pk }}"
-                               value="presente" {% if inscripcion.asistencia == 'presente' %}checked{% endif %} required>
-                        Presente
-                    </label>
-                    <label class="choice-pill choice-pill--absent">
-                        <input type="radio" class="form-check-input" name="asistencia_{{ inscripcion.pk }}"
-                               value="ausente" {% if inscripcion.asistencia == 'ausente' %}checked{% endif %} required>
-                        Ausente
-                    </label>
-                </div>
+    {% if actividad.esta_finalizada %}<div class="alert app-alert app-alert-success" role="status">Actividad finalizada. Podés completar y corregir la asistencia de sus jornadas.</div>{% endif %}
+    <div class="workspace-grid">
+        <aside class="workspace-sidebar" aria-label="Información de la actividad">
+            <section class="surface-card">
+                <h2 class="panel-title">Resumen de la jornada</h2>
+                <dl class="summary-list">
+                    <div><dt>Estado</dt><dd>{{ actividad.get_estado_display }}</dd></div>
+                    <div><dt>Inscritos en la actividad</dt><dd>{{ total_inscritos }}</dd></div>
+                    <div><dt>Habilitados para este día</dt><dd>{{ filas|length }}</dd></div>
+                </dl>
+                {% if inscritos_excluidos %}<p class="panel-copy">{{ inscritos_excluidos }} inscrito(s) se anotaron después del cierre de esta jornada. Siguen inscritos en la actividad, pero no corresponde registrarles asistencia para este día.</p>{% endif %}
+                <a href="{% url 'coordinador:inscritos' actividad.pk %}" class="back-link mb-3">Ver todos los inscritos <i class="bi bi-arrow-up-right ms-2" aria-hidden="true"></i></a>
+                <form method="get" class="border-top pt-3" id="selector-jornada-form">
+                    <label class="form-label" for="jornada">Jornada (hora de Asunción)</label>
+                    <select name="jornada" id="jornada" data-jornada-actual="{{ jornada.pk }}" class="form-select custom-input mb-3">
+                        {% for item in jornadas %}<option value="{{ item.pk }}" {% if item.pk == jornada.pk %}selected{% endif %}>{{ item.fecha|date:"d/m/Y" }} · {% if item.hora_inicio %}{{ item.hora_inicio|time:"H:i" }}–{{ item.hora_fin|time:"H:i" }}{% else %}Sin horario{% endif %}</option>{% endfor %}
+                    </select>
+                    <button class="btn btn-brand-secondary w-100" type="submit">Ver jornada</button>
+                </form>
+            </section>
+            {% if actividad.inscripciones_abiertas %}
+            <section class="surface-card code-panel">
+                <h2 class="panel-title">Código de asistencia</h2>
+                <strong class="attendance-code font-monospace">{{ actividad.codigo_asistencia }}</strong>
+                <p class="panel-copy mb-0">Compartilo con los voluntarios durante la jornada. Solo vos podés consultarlo aquí.</p>
+            </section>
+            {% endif %}
+        </aside>
+        <form method="post" class="surface-card attendance-panel" id="asistencia-form">
+            {% csrf_token %}
+            <input type="hidden" name="jornada" value="{{ jornada.pk }}">
+            <input type="hidden" name="version" value="{{ version }}">
+            <div class="panel-heading"><h2 class="panel-title">Voluntarios de la jornada</h2><span class="badge-soft badge-soft-info">{{ jornada.fecha|date:"d/m/Y" }}</span></div>
+            {% if not editable %}<p class="panel-copy">La lista de inscritos se puede consultar en cualquier momento. El guardado manual se habilita al cerrar la jornada, siempre que la actividad esté publicada o finalizada y tenga inscriptos elegibles.</p>{% endif %}
+            <div class="search-toolbar">
+                <div><label for="buscar-voluntario" class="form-label">Buscar voluntario</label><input type="search" id="buscar-voluntario" class="form-control custom-input" placeholder="Nombre, apellido, usuario o correo" autocomplete="off"></div>
+                {% if editable %}<button type="button" id="marcar-presentes" class="btn btn-brand-secondary">Marcar todos como presentes</button>{% endif %}
             </div>
-        {% endfor %}
-        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
-            <button type="submit" class="btn btn-brand-primary">
-                Guardar asistencia
-            </button>
-        </div>
-    </form>
-</div>
-</div>
+            <p id="resultados-asistencia" class="results-count mb-3" role="status" aria-live="polite"></p>
+            <p id="sin-coincidencias" class="text-muted" hidden>No hay voluntarios que coincidan con la búsqueda.</p>
+            {% for fila in filas %}
+            <div data-voluntario data-busqueda="{{ fila.inscripcion.voluntario.first_name }} {{ fila.inscripcion.voluntario.last_name }} {{ fila.inscripcion.voluntario.username }} {{ fila.inscripcion.voluntario.email }}" class="attendance-row">
+                <div>
+                    <strong>{{ fila.inscripcion.voluntario.get_full_name|default:fila.inscripcion.voluntario.username }}</strong>
+                    <div class="text-muted small">{{ fila.inscripcion.voluntario.email }}</div>
+                    <div class="text-muted small mt-1">Estado guardado: {{ fila.estado_actual }}{% if fila.origen %} · {{ fila.origen }}{% endif %}</div>
+                </div>
+                {% if editable %}
+                <fieldset class="attendance-choices">
+                    <legend class="visually-hidden">Asistencia de {{ fila.inscripcion.voluntario.get_full_name|default:fila.inscripcion.voluntario.username }}</legend>
+                    <label class="choice-pill choice-pill--present"><input type="radio" class="form-check-input" name="asistencia_{{ fila.inscripcion.pk }}" value="presente" {% if fila.estado == 'presente' %}checked{% endif %} required> Presente</label>
+                    <label class="choice-pill choice-pill--absent"><input type="radio" class="form-check-input" name="asistencia_{{ fila.inscripcion.pk }}" value="ausente" {% if fila.estado == 'ausente' %}checked{% endif %} required> Ausente</label>
+                </fieldset>
+                {% endif %}
+            </div>
+            {% empty %}<div class="empty-state"><i class="bi bi-people" aria-hidden="true"></i><p class="text-muted mb-0">No hay inscriptos elegibles para esta jornada.</p></div>{% endfor %}
+            {% if editable %}<div class="action-footer attendance-save"><p>Revisá los estados antes de guardar.</p><button type="submit" class="btn btn-brand-primary">Guardar asistencia</button></div>{% endif %}
+        </form>
+    </div>
+</div></main>
+<script src="{% static 'js/asistencia.js' %}" defer></script>
+<script src="{% static 'js/jornada.js' %}" defer></script>
 {% endblock %}

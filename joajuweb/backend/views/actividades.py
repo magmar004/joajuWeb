@@ -1,8 +1,9 @@
 # Publicar, listar, gestionar, editar, cancelar e inscribirse en actividades.
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
 from django.db import transaction
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -15,21 +16,22 @@ from joajuweb.backend.models import (
     TipoActividad,
 )
 from joajuweb.backend.servicios import (
-    AsistenciaError,
     ActividadError,
+    AsistenciaError,
     InscripcionError,
     agrupar_actividades,
+    aplicar_busqueda,
     cancelar_actividad,
-    finalizar_actividad,
     cancelar_inscripcion,
+    confirmar_asistencia,
     filtrar_actividades_publicadas,
+    finalizar_actividad,
     guardar_borrador,
     inscribir_voluntario,
+    inscripciones_de_jornada,
     modificar_actividad,
     publicar,
     registrar_asistencia,
-    confirmar_asistencia,
-    inscripciones_de_jornada,
     version_asistencia,
 )
 
@@ -81,6 +83,7 @@ def _ids_inscriptos(user):
 
 @login_required
 def listado_view(request):
+    q = request.GET.get('q', '').strip()
     tipo = request.GET.get('tipo', '').strip()
     area = request.GET.get('area', '').strip()
     ubicacion = request.GET.get('ubicacion', '').strip()
@@ -92,6 +95,7 @@ def listado_view(request):
         tipo=tipo or None,
         area=area or None,
         ubicacion=ubicacion or None,
+        q=q,
     ))
     return render(request, 'voluntario/listado.html', {
         'grupos': agrupar_actividades(actividades, agrupar=agrupar),
@@ -103,8 +107,9 @@ def listado_view(request):
             ('area', 'Área'),
             ('ubicacion', 'Ubicación'),
         ),
-        'hay_filtros': bool(tipo or area or ubicacion),
+        'hay_filtros': bool(q or tipo or area or ubicacion),
         'filtros': {
+            'q': q,
             'tipo': tipo,
             'area': area,
             'ubicacion': ubicacion,
@@ -167,14 +172,26 @@ def baja_inscripcion_view(request, pk):
 def gestionar_view(request):
     if not _es_coordinador(request.user):
         return redirect('voluntario:home')
-    propias = Actividad.objects.filter(creado_por=request.user).prefetch_related('jornadas')
+    
+    q = request.GET.get('q', '').strip()
+    propias = aplicar_busqueda(
+        Actividad.objects.filter(creado_por=request.user).prefetch_related('jornadas'),
+        q,
+        ('nombre', 'descripcion', 'ubicacion'),
+    )
     publicadas = list(propias.filter(estado=EstadoActividad.PUBLICADA))
+    
+    sin_resultado = 'Ninguna actividad coincide con la búsqueda.'
     return render(request, 'coordinador/gestionar.html', {
+        'q': q,
         'borradores': propias.filter(estado=EstadoActividad.BORRADOR),
         'publicadas': [item for item in publicadas if not item.ya_finalizo()],
         'pendientes_cierre': [item for item in publicadas if item.ya_finalizo()],
         'finalizadas': propias.filter(estado=EstadoActividad.FINALIZADA),
         'canceladas': propias.filter(estado=EstadoActividad.CANCELADA),
+        'vacio_borradores': sin_resultado if q else 'No tenés actividades en borrador.',
+        'vacio_publicadas': sin_resultado if q else 'No tenés actividades publicadas.',
+        'vacio_canceladas': sin_resultado if q else 'No hay actividades canceladas.',
     })
 
 
@@ -188,7 +205,8 @@ def inscritos_view(request, pk):
         'voluntario__first_name', 'voluntario__last_name', 'voluntario__username',
     )
     return render(request, 'coordinador/inscritos.html', {
-        'actividad': actividad, 'inscripciones': inscripciones,
+        'actividad': actividad, 
+        'inscripciones': inscripciones,
     })
 
 
@@ -273,7 +291,6 @@ def asistencia_view(request, pk):
     seleccion = request.POST.get('jornada') if request.method == 'POST' else request.GET.get('jornada')
     jornada = next((item for item in jornadas if str(item.pk) == seleccion), None)
     if seleccion and jornada is None:
-        from django.http import Http404
         raise Http404
     if jornada is None and jornadas:
         jornada = next((item for item in reversed(jornadas) if item.finalizo()), jornadas[0])
@@ -295,13 +312,17 @@ def asistencia_view(request, pk):
         registro = registros.get(inscripcion.pk)
         actual = registro.estado if registro else EstadoAsistencia.PENDIENTE
         filas.append({
-            'inscripcion': inscripcion, 'estado_actual': actual,
+            'inscripcion': inscripcion, 
+            'estado_actual': actual,
             'estado': marcas.get(inscripcion.pk, actual),
             'origen': registro.get_origen_display() if registro else '',
         })
     return render(request, 'coordinador/asistencia.html', {
         'actividad': actividad,
-        'jornadas': jornadas, 'jornada': jornada, 'filas': filas, 'editable': editable,
+        'jornadas': jornadas, 
+        'jornada': jornada, 
+        'filas': filas, 
+        'editable': editable,
         'version': version_asistencia(jornada) if jornada else '',
         'total_inscritos': actividad.cantidad_inscriptos(),
         'inscritos_excluidos': actividad.cantidad_inscriptos() - len(inscripciones),

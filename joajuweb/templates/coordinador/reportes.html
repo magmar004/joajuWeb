@@ -19,6 +19,10 @@
 
     <form method="get" class="surface-card filter-bar mb-4">
         <div class="row g-3 align-items-end">
+            <div class="col-12">
+                <label for="q" class="form-label">Buscar</label>
+                <input type="search" name="q" id="q" class="form-control custom-input" value="{{ filtros.q }}" placeholder="Actividad, voluntario o correo" autocomplete="off">
+            </div>
             <div class="col-md-4">
                 <label for="fecha_desde" class="form-label">Desde</label>
                 <input type="date" name="fecha_desde" id="fecha_desde" class="form-control custom-input" value="{{ filtros.fecha_desde }}">
@@ -41,6 +45,9 @@
             <button type="submit" class="btn btn-brand-primary btn-sm">Aplicar</button>
             <a href="{% url 'coordinador:reportes' %}" class="btn btn-brand-secondary btn-sm">Limpiar</a>
         </div>
+        {% if filtros.q %}
+            <p class="text-muted small mb-0 mt-3">Los totales son del período. Las listas de abajo muestran solo lo que coincide con la búsqueda.</p>
+        {% endif %}
     </form>
 
     <div class="stats-grid">
@@ -51,78 +58,81 @@
     </div>
 
     <div class="report-grid">
-    <section>
-    <div class="section-label">
-        <h2 class="panel-title">Actividades</h2>
-        <span class="section-count">{{ actividades|length }}</span>
-    </div>
-    <div class="surface-card mb-4">
-        {% if actividades %}
-            {% for actividad in actividades %}
-                <div class="list-row">
-                    <div>
-                        <strong>{{ actividad.nombre }}</strong>
-                        <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
-                    </div>
-                    <div class="text-muted small">
-                        {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes (por jornada)
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted small mb-0">No hay actividades con esos filtros.</p>
-        {% endif %}
-    </div>
+        <section>
+            <div class="section-label">
+                <h2 class="panel-title">Actividades</h2>
+                <span class="section-count">{{ actividades|length }}</span>
+            </div>
+            <div class="surface-card mb-4">
+                {% if actividades %}
+                    {% for actividad in actividades %}
+                        <div class="list-row">
+                            <div>
+                                <strong>{{ actividad.nombre }}</strong>
+                                <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes (por jornada)
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">{% if filtros.q %}Ninguna actividad coincide con la búsqueda.{% else %}No hay actividades con esos filtros.{% endif %}</p>
+                {% endif %}
+            </div>
+        </section>
 
-    </section>
-    <section>
-    <div class="section-label">
-        <h2 class="panel-title">Voluntarios</h2>
-        <span class="section-count">{{ voluntarios|length }}</span>
-    </div>
-    <div class="surface-card mb-4">
-        {% if voluntarios %}
-            {% for voluntario in voluntarios %}
-                <div class="list-row">
-                    <div>
-                        <strong>{{ voluntario.get_full_name|default:voluntario.username }}</strong>
-                        <div class="text-muted small">{{ voluntario.email }}</div>
-                    </div>
-                    <div class="text-muted small">
-                        {{ voluntario.n_inscripciones }} inscripción(es) · {{ voluntario.n_presentes }} presente(s) por jornada
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted small mb-0">No hay voluntarios inscriptos en el período.</p>
-        {% endif %}
-    </div>
+        <section>
+            <div class="section-label">
+                <h2 class="panel-title">Voluntarios</h2>
+                <span class="section-count">{{ voluntarios|length }}</span>
+            </div>
+            <div class="surface-card mb-4">
+                {% if voluntarios %}
+                    {% for voluntario in voluntarios %}
+                        <div class="list-row">
+                            <div>
+                                <strong>{{ voluntario.get_full_name|default:voluntario.username }}</strong>
+                                <div class="text-muted small">{{ voluntario.email }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {{ voluntario.n_inscripciones }} inscripción(es) · {{ voluntario.n_presentes }} presente(s) por jornada
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">{% if filtros.q %}Ningún voluntario coincide con la búsqueda.{% else %}No hay voluntarios inscriptos en el período.{% endif %}</p>
+                {% endif %}
+            </div>
+        </section>
 
-    </section>
-    <section class="report-wide">
-    <div class="section-label">
-        <h2 class="panel-title">Inscripciones</h2>
-        <span class="section-count">{{ inscripciones|length }}</span>
-    </div>
-    <div class="surface-card">
-        {% if inscripciones %}
-            {% for inscripcion in inscripciones %}
-                <div class="list-row">
-                    <div>
-                        <strong>{{ inscripcion.voluntario.get_full_name|default:inscripcion.voluntario.username }}</strong>
-                        <div class="text-muted small">{{ inscripcion.actividad.nombre }} · {{ inscripcion.actividad.get_tipo_display }}</div>
-                    </div>
-                    <div class="text-muted small">
-                        {% for registro in inscripcion.registros_reporte %}
-                            <div>{{ registro.jornada.fecha|date:"d/m/Y" }} · {{ registro.get_estado_display }}</div>
-                        {% empty %}Sin asistencia en el período.{% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted small mb-0">No hay inscripciones con esos filtros.</p>
-        {% endif %}
-    </div>    </section>
+        <section class="report-wide">
+            <div class="section-label">
+                <h2 class="panel-title">Inscripciones</h2>
+                <span class="section-count">{{ inscripciones|length }}</span>
+            </div>
+            <div class="surface-card">
+                {% if inscripciones %}
+                    {% for inscripcion in inscripciones %}
+                        <div class="list-row">
+                            <div>
+                                <strong>{{ inscripcion.voluntario.get_full_name|default:inscripcion.voluntario.username }}</strong>
+                                <div class="text-muted small">{{ inscripcion.actividad.nombre }} · {{ inscripcion.actividad.get_tipo_display }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {% for registro in inscripcion.registros_reporte %}
+                                    <div>{{ registro.jornada.fecha|date:"d/m/Y" }} · {{ registro.get_estado_display }}</div>
+                                {% empty %}
+                                    Sin asistencia en el período.
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">{% if filtros.q %}Ninguna inscripción coincide con la búsqueda.{% else %}No hay inscripciones con esos filtros.{% endif %}</p>
+                {% endif %}
+            </div>
+        </section>
     </div>
 </div>
 </main>

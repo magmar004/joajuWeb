@@ -619,3 +619,24 @@ a:hover {
 .filter-bar {
     padding: 1.25rem 1.4rem;
 }
+
+.search-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-row .custom-input {
+    flex: 1 1 auto;
+}
+
+@media (min-width: 576px) {
+    .search-row {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .search-row .btn {
+        flex: 0 0 auto;
+    }
+}

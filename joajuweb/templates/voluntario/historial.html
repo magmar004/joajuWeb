@@ -28,6 +28,13 @@
         {% endif %}
     </div>
 
+    {% if es_propio %}
+        {% url 'voluntario:historial' as url_limpiar %}
+    {% else %}
+        {% url 'coordinador:historial_voluntario' voluntario.pk as url_limpiar %}
+    {% endif %}
+    {% include 'includes/buscador.html' with etiqueta="Buscar en el historial" placeholder="Nombre de la actividad o lugar" limpiar_url=url_limpiar %}
+
     {% include 'voluntario/includes/historial_tarjetas.html' %}
 </div>
 </main>

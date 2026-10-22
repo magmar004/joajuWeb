@@ -24,26 +24,29 @@
 
     {% include 'includes/mensajes.html' %}
 
+    {% url 'coordinador:gestionar' as url_limpiar %}
+    {% include 'includes/buscador.html' with etiqueta="Buscar actividad" placeholder="Nombre, descripción o lugar" limpiar_url=url_limpiar %}
+
     {% if pendientes_cierre %}
     <div class="section-label">
         <h3>Pendientes de cierre</h3>
         <span class="section-count">{{ pendientes_cierre|length }}</span>
     </div>
     <p class="text-muted">Todas sus jornadas terminaron y ya no aceptan inscripciones. Podés darlas por terminadas y seguir completando la asistencia.</p>
-    {% include 'coordinador/includes/tabla.html' with actividades=pendientes_cierre %}
+    {% include 'coordinador/includes/tabla.html' with actividades=pendientes_cierre vacio=vacio_publicadas %}
     {% endif %}
 
     <div class="section-label">
         <h3>Publicadas</h3>
         <span class="section-count">{{ publicadas|length }}</span>
     </div>
-    {% include 'coordinador/includes/tabla.html' with actividades=publicadas vacio="No tenés actividades publicadas." %}
+    {% include 'coordinador/includes/tabla.html' with actividades=publicadas vacio=vacio_publicadas %}
 
     <div class="section-label">
         <h3>Borradores</h3>
         <span class="section-count">{{ borradores|length }}</span>
     </div>
-    {% include 'coordinador/includes/tabla.html' with actividades=borradores vacio="No tenés actividades en borrador." %}
+    {% include 'coordinador/includes/tabla.html' with actividades=borradores vacio=vacio_borradores %}
 
     <div class="section-label">
         <h3>Finalizadas</h3>
@@ -55,7 +58,7 @@
         <h3>Canceladas</h3>
         <span class="section-count">{{ canceladas|length }}</span>
     </div>
-    {% include 'coordinador/includes/tabla.html' with actividades=canceladas vacio="No hay actividades canceladas." %}
+    {% include 'coordinador/includes/tabla.html' with actividades=canceladas vacio=vacio_canceladas %}
 </div>
 </main>
 {% endblock %}

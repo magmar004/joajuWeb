@@ -17,6 +17,9 @@
         <p class="text-muted mb-0">Voluntarios inscriptos en tus actividades. Solo vos y cada voluntario ven su historial.</p>
     </div>
 
+    {% url 'coordinador:participacion' as url_limpiar %}
+    {% include 'includes/buscador.html' with etiqueta="Buscar voluntario" placeholder="Nombre, usuario o correo" limpiar_url=url_limpiar %}
+
     {% if voluntarios %}
         <div class="card-grid card-grid--people">
             {% for voluntario in voluntarios %}
@@ -35,6 +38,12 @@
                     </a>
                 </div>
             {% endfor %}
+        </div>
+    {% elif q %}
+        <div class="surface-card empty-state">
+            <i class="bi bi-search d-block"></i>
+            <h3 class="fw-bold text-dark">Ningún voluntario coincide</h3>
+            <p class="text-muted small mb-0">Probá con otro nombre, usuario o correo.</p>
         </div>
     {% else %}
         <div class="surface-card empty-state">

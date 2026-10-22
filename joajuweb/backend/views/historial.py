@@ -18,10 +18,12 @@ def _es_coordinador(user):
 def historial_propio_view(request):
     if _es_coordinador(request.user):
         return redirect('coordinador:participacion')
+    q = request.GET.get('q', '').strip()
     return render(request, 'voluntario/historial.html', {
         'voluntario': request.user,
-        'inscripciones': historial_voluntario(request.user),
+        'inscripciones': historial_voluntario(request.user, q=q),
         'es_propio': True,
+        'q': q,
     })
 
 
@@ -29,8 +31,10 @@ def historial_propio_view(request):
 def participacion_view(request):
     if not _es_coordinador(request.user):
         return redirect('voluntario:home')
+    q = request.GET.get('q', '').strip()
     return render(request, 'coordinador/participacion.html', {
-        'voluntarios': voluntarios_de_coordinador(request.user),
+        'voluntarios': voluntarios_de_coordinador(request.user, q=q),
+        'q': q,
     })
 
 
@@ -41,8 +45,10 @@ def historial_ajeno_view(request, pk):
         if _es_coordinador(request.user):
             return redirect('coordinador:participacion')
         return redirect('voluntario:home')
+    q = request.GET.get('q', '').strip()
     return render(request, 'voluntario/historial.html', {
         'voluntario': voluntario,
-        'inscripciones': historial_voluntario(voluntario),
+        'inscripciones': historial_voluntario(voluntario, q=q),
         'es_propio': request.user.pk == voluntario.pk,
+        'q': q,
     })

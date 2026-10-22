@@ -15,10 +15,12 @@
                     </div>
                     <h3 class="fw-bold mb-2">{{ inscripcion.actividad.nombre }}</h3>
                     <p class="text-muted small mb-3">{{ inscripcion.actividad.descripcion|truncatewords:22 }}</p>
-                    <p class="small">{{ inscripcion.resumen_asistencia }}</p>
+                    <p class="small text-dark fw-medium mb-1">{{ inscripcion.resumen_asistencia }}</p>
                     {% for registro in inscripcion.asistencias.all %}
                         <p class="small mb-1">{{ registro.jornada.fecha|date:"d/m/Y" }} · {{ registro.get_estado_display }}</p>
-                    {% empty %}<p class="text-muted small">Sin asistencia registrada.</p>{% endfor %}
+                    {% empty %}
+                        <p class="text-muted small mb-2">Sin asistencia registrada.</p>
+                    {% endfor %}
                     <div class="meta-row mt-auto">
                         <span><i class="bi bi-calendar3 me-1"></i>{{ inscripcion.actividad.fecha|date:"d/m/Y" }}</span>
                         <span><i class="bi bi-person-plus me-1"></i>Inscripción: {{ inscripcion.fecha_inscripcion|date:"d/m/Y" }}</span>
@@ -26,6 +28,12 @@
                 </div>
             </div>
         {% endfor %}
+    </div>
+{% elif q %}
+    <div class="surface-card empty-state">
+        <i class="bi bi-search d-block"></i>
+        <h3 class="h5 fw-bold text-dark">Ninguna actividad coincide</h3>
+        <p class="text-muted small mb-0">Probá con otro nombre o lugar.</p>
     </div>
 {% else %}
     <div class="surface-card empty-state">

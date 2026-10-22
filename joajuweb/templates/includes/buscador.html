@@ -1,0 +1,27 @@
+<form method="get" class="buscador-limpio mb-4">
+    <!-- Etiqueta y Campo de Texto a Ancho Completo -->
+    <div class="mb-3">
+        {% if etiqueta %}
+            <label for="q" class="form-label fw-semibold text-dark mb-2">{{ etiqueta }}</label>
+        {% endif %}
+        <input type="search" 
+               name="q" 
+               id="q" 
+               class="form-control custom-input w-100" 
+               value="{{ request.GET.q|default:'' }}" 
+               placeholder="{{ placeholder|default:'Buscar...' }}" 
+               autocomplete="off">
+    </div>
+
+    <!-- Botones separados y ubicados abajo con margen superior -->
+    <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
+        <button type="submit" class="btn btn-brand-primary">
+            Buscar
+        </button>
+        {% if limpiar_url %}
+            <a href="{{ limpiar_url }}" class="btn btn-brand-secondary">
+                Limpiar
+            </a>
+        {% endif %}
+    </div>
+</form>

@@ -176,12 +176,17 @@ def inscribir_voluntario(actividad, voluntario):
         raise InscripcionError('Ya estás inscripto en esta actividad.')
 
 
-def historial_voluntario(voluntario):
-    return (
+def historial_voluntario(voluntario, q=''):
+    inscripciones = (
         Inscripcion.objects.filter(voluntario=voluntario)
         .select_related('actividad', 'actividad__creado_por')
         .prefetch_related('asistencias__jornada', 'actividad__jornadas')
         .order_by('-actividad__fecha', '-fecha_inscripcion')
+    )
+    return aplicar_busqueda(
+        inscripciones,
+        q,
+        ('actividad__nombre', 'actividad__ubicacion', 'actividad__descripcion'),
     )
 
 
@@ -198,13 +203,18 @@ def puede_ver_historial(viewer, voluntario):
     ).exists()
 
 
-def voluntarios_de_coordinador(coordinador):
-    return (
+def voluntarios_de_coordinador(coordinador, q=''):
+    voluntarios = (
         Usuario.objects.filter(
             inscripciones__actividad__creado_por=coordinador,
         )
         .distinct()
         .order_by('first_name', 'last_name', 'username')
+    )
+    return aplicar_busqueda(
+        voluntarios,
+        q,
+        ('first_name', 'last_name', 'username', 'email'),
     )
 
 
@@ -393,7 +403,7 @@ def _validar_cupo_disponible(actividad):
         raise InscripcionError('La actividad está completa. No quedan cupos disponibles.')
 
 
-def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None):
+def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None, q=''):
     actividades = Actividad.vigentes()
     if tipo:
         actividades = actividades.filter(tipo=tipo)
@@ -401,7 +411,24 @@ def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None):
         actividades = actividades.filter(area=area)
     if ubicacion:
         actividades = actividades.filter(ubicacion__icontains=ubicacion)
-    return actividades
+    return aplicar_busqueda(actividades, q, ('nombre', 'descripcion', 'ubicacion'))
+
+
+def aplicar_busqueda(queryset, texto, campos):
+    for termino in (texto or '').split():
+        filtro = Q()
+        for campo in campos:
+            filtro |= Q(**{f'{campo}__icontains': termino})
+        queryset = queryset.filter(filtro)
+    return queryset
+
+
+def coincide_busqueda(texto, *partes):
+    terminos = [parte.casefold() for parte in (texto or '').split() if parte]
+    if not terminos:
+        return True
+    contenido = ' '.join(str(parte or '') for parte in partes).casefold()
+    return all(termino in contenido for termino in terminos)
 
 
 def agrupar_actividades(actividades, agrupar='tipo'):

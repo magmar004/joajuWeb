@@ -14,11 +14,15 @@
     <div class="page-heading">
         <p class="hero-kicker">Voluntariado</p>
         <h1 class="fw-bold text-dark mb-2">Actividades publicadas</h1>
-        <p class="text-muted mb-0">Filtrá por tipo, área o ubicación y agrupá el listado como te resulte más fácil.</p>
+        <p class="text-muted mb-0">Buscá por nombre o filtrá por tipo, área y ubicación.</p>
     </div>
 
     <form method="get" class="surface-card filter-bar mb-4">
         <div class="row g-3 align-items-end">
+            <div class="col-12">
+                <label for="q" class="form-label">Buscar</label>
+                <input type="search" name="q" id="q" class="form-control custom-input" value="{{ filtros.q }}" placeholder="Nombre o descripción" autocomplete="off">
+            </div>
             <div class="col-md-3">
                 <label for="tipo" class="form-label">Tipo</label>
                 <select name="tipo" id="tipo" class="form-select custom-input">
@@ -71,7 +75,7 @@
             <i class="bi bi-calendar3 d-block"></i>
             {% if hay_filtros %}
                 <h5 class="fw-bold text-dark">No hay actividades con esos filtros</h5>
-                <p class="text-muted small mb-0">Probá otro tipo, área o ubicación, o limpiá los filtros.</p>
+                <p class="text-muted small mb-0">Probá otro nombre, tipo, área o ubicación, o limpiá los filtros.</p>
             {% else %}
                 <h5 class="fw-bold text-dark">Todavía no hay actividades publicadas</h5>
                 <p class="text-muted small mb-0">Cuando un coordinador publique una actividad, va a aparecer acá.</p>

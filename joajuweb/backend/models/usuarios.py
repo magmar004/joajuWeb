@@ -25,6 +25,11 @@ class Usuario(AbstractUser):
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
     roles = models.ManyToManyField(Rol, related_name="usuarios", blank=True, verbose_name="Roles")
 
+    # Campos agregados para HU13 - Perfil ampliado
+    intereses = models.TextField(blank=True, null=True, verbose_name="Intereses")
+    habilidades = models.TextField(blank=True, null=True, verbose_name="Habilidades")
+    biografia = models.TextField(blank=True, null=True, verbose_name="Sobre mí / Biografía")
+
     def __str__(self):
         return f"{self.username} ({self.email})"
 
@@ -32,4 +37,4 @@ class Usuario(AbstractUser):
         return self.roles.filter(nombre__iexact="Coordinador").exists()
 
     def rol_principal(self):
-        return self.roles.first()
+        return self.roles.first() 

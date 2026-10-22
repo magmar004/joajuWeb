@@ -79,6 +79,24 @@ class PerfilForm(forms.ModelForm):
     last_name = forms.CharField(label="Apellido", max_length=150, required=True)
     email = forms.EmailField(label="Correo electrónico", required=True)
     telefono = forms.CharField(label="Teléfono", max_length=20, required=False)
+    
+    # Campos agregados para la HU13 - Perfil Ampliado
+    biografia = forms.CharField(
+        label="Sobre mí / Biografía",
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Contanos un poco sobre vos...'})
+    )
+    habilidades = forms.CharField(
+        label="Habilidades y competencias",
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Ej: Liderazgo, Primeros auxilios, Trabajo en equipo'})
+    )
+    intereses = forms.CharField(
+        label="Áreas de interés",
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Ej: Medio ambiente, Educación, Protección animal'})
+    )
+
     foto = forms.ImageField(
         label="Foto de perfil",
         required=False,
@@ -89,7 +107,7 @@ class PerfilForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        fields = ('first_name', 'last_name', 'email', 'telefono', 'foto')
+        fields = ('first_name', 'last_name', 'email', 'telefono', 'biografia', 'habilidades', 'intereses', 'foto')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

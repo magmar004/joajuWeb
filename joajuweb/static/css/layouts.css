@@ -127,6 +127,15 @@
 .joaju-ui .report-grid { display: grid; gap: 1.5rem; align-items: start; }
 .joaju-ui .report-grid > * { min-width: 0; }
 .joaju-ui .report-grid .section-label { margin-top: 0; }
+.joaju-ui .report-picker { overflow: hidden; }
+.joaju-ui .report-picker-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; color: var(--ink); cursor: pointer; font-weight: 650; list-style: none; }
+.joaju-ui .report-picker-summary::-webkit-details-marker { display: none; }
+.joaju-ui .report-picker[open] .report-picker-summary { border-bottom: 1px solid var(--line); }
+.joaju-ui .report-picker[open] .report-picker-summary .bi { transform: rotate(180deg); }
+.joaju-ui .report-picker-summary .bi { transition: transform .16s ease; }
+.joaju-ui .report-picker-content { padding: 1rem 1.25rem; }
+.joaju-ui .report-picker-options { max-height: 24rem; overflow-y: auto; overscroll-behavior: contain; }
+.joaju-ui .report-picker-options .list-row:first-child { padding-top: .25rem; }
 .joaju-ui .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
 .joaju-ui .stats-grid .stat-card { height: 100%; }
 .joaju-ui .stat-card .stat-label { min-height: 2.5em; }

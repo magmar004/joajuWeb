@@ -3,6 +3,7 @@ from .auth import (
     coordinador_home_view,
     coordinador_modulo_view,
     home_view,
+    inicio_publico_view,
     no_disponible_view,
     registro_view,
     voluntario_home_view,
@@ -16,6 +17,7 @@ try:
         cancelar_view,
         finalizar_view,
         detalle_view,
+        detalle_publico_view,
         editar_view,
         gestionar_view,
         inscritos_view,
@@ -30,6 +32,7 @@ except ImportError:
     cancelar_view = None
     finalizar_view = None
     detalle_view = None
+    detalle_publico_view = None
     editar_view = None
     gestionar_view = None
     inscritos_view = None
@@ -58,6 +61,7 @@ _all_ = [
     'registro_view',
     'CustomLoginView',
     'home_view',
+    'inicio_publico_view',
     'voluntario_home_view',
     'coordinador_home_view',
     'coordinador_modulo_view',
@@ -65,6 +69,7 @@ _all_ = [
     'publicar_view',
     'listado_view',
     'detalle_view',
+    'detalle_publico_view',
     'inscribirse_view',
     'baja_inscripcion_view',
     'gestionar_view',

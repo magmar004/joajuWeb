@@ -16,7 +16,7 @@
                             <span class="badge-soft badge-soft-danger">Cancelada</span>
                         {% endif %}
                         <span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span>
-                        <span class="badge-soft badge-soft-muted">{{ actividad.get_area_display }}</span>
+                        <span class="badge-soft badge-soft-muted">{% if actividad.departamento %}{{ actividad.get_departamento_display }}{% else %}{{ actividad.get_area_display }}{% endif %}</span>
                         {% if actividad.esta_completa %}
                             <span class="badge-soft badge-soft-warning">Completa</span>
                         {% endif %}
@@ -26,7 +26,7 @@
                     <div class="meta-row">
                         <span><i class="bi bi-calendar3 me-1"></i>{{ actividad.fecha|date:"d/m/Y" }}</span>
                         {% if actividad.ubicacion %}
-                            <span><i class="bi bi-geo-alt me-1"></i>{{ actividad.ubicacion }}</span>
+                            <span><i class="bi bi-geo-alt me-1"></i>{{ actividad.get_ubicacion_completa }}</span>
                         {% endif %}
                         <span><i class="bi bi-people me-1"></i>{{ actividad.cantidad_inscriptos }}/{{ actividad.cupo }} inscriptos</span>
                         <span><i class="bi bi-ticket-perforated me-1"></i>{{ actividad.cupos_disponibles }} disponibles</span>

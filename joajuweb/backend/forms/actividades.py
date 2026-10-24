@@ -1,13 +1,16 @@
 # Formulario de carga de actividad. El estado lo define el servicio, no este form.
 from django import forms
 
-from joajuweb.backend.models import Actividad, JornadaActividad
+from joajuweb.backend.models import Actividad, CIUDADES_CENTRAL, JornadaActividad
+
+TAMANO_MAX_IMAGEN_ACTIVIDAD = 5 * 1024 * 1024
+FORMATOS_IMAGEN_ACTIVIDAD = {'JPEG', 'PNG', 'WEBP'}
 
 
 class ActividadForm(forms.ModelForm):
     class Meta:
         model = Actividad
-        fields = ('nombre', 'descripcion', 'tipo', 'area', 'ubicacion', 'fecha', 'cupo')
+        fields = ('nombre', 'descripcion', 'tipo', 'departamento', 'ciudad', 'ubicacion', 'fecha', 'cupo', 'imagen')
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control custom-input',
@@ -19,7 +22,12 @@ class ActividadForm(forms.ModelForm):
                 'placeholder': 'Contá en qué consiste la actividad y qué se espera de los voluntarios',
             }),
             'tipo': forms.Select(attrs={'class': 'form-select custom-input'}),
-            'area': forms.Select(attrs={'class': 'form-select custom-input'}),
+            'departamento': forms.Select(attrs={'class': 'form-select custom-input'}),
+            'ciudad': forms.TextInput(attrs={
+                'class': 'form-control custom-input',
+                'placeholder': 'Escribí el nombre de la ciudad',
+                'autocomplete': 'address-level2',
+            }),
             'ubicacion': forms.TextInput(attrs={
                 'class': 'form-control custom-input',
                 'placeholder': 'Ej. Costanera de Asunción',
@@ -28,6 +36,10 @@ class ActividadForm(forms.ModelForm):
                 attrs={'class': 'form-control custom-input', 'type': 'date'},
                 format='%Y-%m-%d',
             ),
+            'imagen': forms.ClearableFileInput(attrs={
+                'class': 'form-control custom-input',
+                'accept': '.jpg,.jpeg,.png,.webp',
+            }),
             'cupo': forms.NumberInput(attrs={
                 'class': 'form-control custom-input',
                 'min': 1,
@@ -37,9 +49,58 @@ class ActividadForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        ciudad_actual = self.instance.ciudad or ''
+        ciudades_normalizadas = {ciudad.casefold() for ciudad in CIUDADES_CENTRAL}
+        self.ciudad_central_actual = ciudad_actual
+        self.ciudad_central_legacy = bool(
+            self.instance.pk
+            and self.instance.departamento == 'central'
+            and ciudad_actual
+            and ciudad_actual.casefold() not in ciudades_normalizadas
+        )
+        self.fields['departamento'].choices = [
+            ('', 'Seleccioná un departamento'),
+            *[
+                (valor, etiqueta)
+                for valor, etiqueta in self.fields['departamento'].choices
+                if valor
+            ],
+        ]
         for field in self.fields.values():
             field.required = True
+        self.fields['imagen'].required = False
         self.fields['fecha'].input_formats = ['%Y-%m-%d']
+
+    def clean(self):
+        datos = super().clean()
+        departamento = datos.get('departamento')
+        ciudad = (datos.get('ciudad') or '').strip()
+        if departamento == 'asuncion':
+            datos['ciudad'] = 'Asunción'
+        elif departamento == 'central' and ciudad:
+            ciudades_por_nombre = {nombre.casefold(): nombre for nombre in CIUDADES_CENTRAL}
+            ciudad_canonica = ciudades_por_nombre.get(ciudad.casefold())
+            ciudad_anterior = (self.instance.ciudad or '').strip()
+            if ciudad_canonica:
+                datos['ciudad'] = ciudad_canonica
+            elif not (
+                self.instance.pk
+                and self.instance.departamento == 'central'
+                and ciudad.casefold() == ciudad_anterior.casefold()
+            ):
+                self.add_error('ciudad', 'Para el departamento Central, elegí una ciudad de la lista.')
+        return datos
+
+    def clean_imagen(self):
+        imagen = self.cleaned_data.get('imagen')
+        if not imagen:
+            return imagen
+        if imagen.size > TAMANO_MAX_IMAGEN_ACTIVIDAD:
+            raise forms.ValidationError('La fotografía no puede superar los 5 MB.')
+        formato = getattr(getattr(imagen, 'image', None), 'format', None)
+        if formato and formato.upper() not in FORMATOS_IMAGEN_ACTIVIDAD:
+            raise forms.ValidationError('Usá una imagen en formato JPG, PNG o WEBP.')
+        return imagen
 
     def clean_nombre(self):
         nombre = (self.cleaned_data.get('nombre') or '').strip()

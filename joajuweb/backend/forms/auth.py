@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm, UserCreationForm
 from django.core.validators import FileExtensionValidator
 
-from joajuweb.backend.models import Rol, Usuario
+from joajuweb.backend.models import Rol, TipoInteresActividad, Usuario
 
 TAMANO_MAX_FOTO = 2 * 1024 * 1024
 TELEFONO_VALIDO = re.compile(r'^[0-9+\-\s()]{6,20}$')
@@ -91,10 +91,11 @@ class PerfilForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Ej: Liderazgo, Primeros auxilios, Trabajo en equipo'})
     )
-    intereses = forms.CharField(
+    intereses_actividad = forms.ModelMultipleChoiceField(
+        queryset=TipoInteresActividad.objects.none(),
         label="Áreas de interés",
         required=False,
-        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Ej: Medio ambiente, Educación, Protección animal'})
+        widget=forms.CheckboxSelectMultiple,
     )
 
     foto = forms.ImageField(
@@ -107,12 +108,13 @@ class PerfilForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        fields = ('first_name', 'last_name', 'email', 'telefono', 'biografia', 'habilidades', 'intereses', 'foto')
+        fields = ('first_name', 'last_name', 'email', 'telefono', 'biografia', 'habilidades', 'intereses_actividad', 'foto')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['intereses_actividad'].queryset = TipoInteresActividad.objects.order_by('orden', 'nombre')
         for nombre, field in self.fields.items():
-            if nombre == 'foto':
+            if nombre in ('foto', 'intereses_actividad'):
                 continue
             if nombre == 'quitar_foto':
                 field.widget.attrs.update({'class': 'form-check-input'})
@@ -161,4 +163,5 @@ class PerfilForm(forms.ModelForm):
             usuario.foto = None
         if commit:
             usuario.save()
+            self.save_m2m()
         return usuario

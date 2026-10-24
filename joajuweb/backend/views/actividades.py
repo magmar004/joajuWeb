@@ -11,6 +11,7 @@ from joajuweb.backend.forms import ActividadForm, JornadasFormSet
 from joajuweb.backend.models import (
     Actividad,
     AreaActividad,
+    DepartamentoActividad,
     EstadoActividad,
     EstadoAsistencia,
     TipoActividad,
@@ -50,7 +51,7 @@ def publicar_view(request):
         return redirect('voluntario:home')
 
     if request.method == 'POST':
-        form = ActividadForm(request.POST)
+        form = ActividadForm(request.POST, request.FILES)
         jornadas = JornadasFormSet(request.POST, instance=form.instance, prefix='jornadas')
         valido = form.is_valid()
         jornadas_validas = jornadas.is_valid()
@@ -86,6 +87,8 @@ def listado_view(request):
     q = request.GET.get('q', '').strip()
     tipo = request.GET.get('tipo', '').strip()
     area = request.GET.get('area', '').strip()
+    departamento = request.GET.get('departamento', '').strip()
+    ciudad = request.GET.get('ciudad', '').strip()
     ubicacion = request.GET.get('ubicacion', '').strip()
     agrupar = request.GET.get('agrupar', 'tipo').strip()
     if agrupar not in ('tipo', 'area', 'ubicacion'):
@@ -96,25 +99,41 @@ def listado_view(request):
         area=area or None,
         ubicacion=ubicacion or None,
         q=q,
+        departamento=departamento or None,
+        ciudad=ciudad or None,
     ))
     return render(request, 'voluntario/listado.html', {
         'grupos': agrupar_actividades(actividades, agrupar=agrupar),
         'ids_inscriptos': _ids_inscriptos(request.user),
         'tipos': TipoActividad,
         'areas': AreaActividad,
+        'departamentos': DepartamentoActividad,
         'agrupar_opciones': (
             ('tipo', 'Tipo'),
-            ('area', 'Área'),
+            ('area', 'Departamento y ciudad'),
             ('ubicacion', 'Ubicación'),
         ),
-        'hay_filtros': bool(q or tipo or area or ubicacion),
+        'hay_filtros': bool(q or tipo or area or departamento or ciudad or ubicacion),
         'filtros': {
             'q': q,
             'tipo': tipo,
             'area': area,
+            'departamento': departamento,
+            'ciudad': ciudad,
             'ubicacion': ubicacion,
             'agrupar': agrupar,
         },
+    })
+
+
+def detalle_publico_view(request, pk):
+    actividad = get_object_or_404(
+        Actividad.vigentes().prefetch_related('jornadas'),
+        pk=pk,
+    )
+    return render(request, 'publico/detalle_actividad.html', {
+        'actividad': actividad,
+        'jornadas': actividad.jornadas.all(),
     })
 
 
@@ -221,7 +240,7 @@ def editar_view(request, pk):
         return redirect('coordinador:gestionar')
 
     if request.method == 'POST':
-        form = ActividadForm(request.POST, instance=actividad)
+        form = ActividadForm(request.POST, request.FILES, instance=actividad)
         jornadas = JornadasFormSet(request.POST, instance=actividad, prefix='jornadas')
         valido = form.is_valid()
         jornadas_validas = jornadas.is_valid()

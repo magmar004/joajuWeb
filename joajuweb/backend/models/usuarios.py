@@ -13,6 +13,20 @@ class Rol(models.Model):
         return self.nombre
 
 
+class TipoInteresActividad(models.Model):
+    codigo = models.CharField(max_length=20, primary_key=True)
+    nombre = models.CharField(max_length=40)
+    orden = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ('orden', 'nombre')
+        verbose_name = 'tipo de interés'
+        verbose_name_plural = 'tipos de interés'
+
+    def __str__(self):
+        return self.nombre
+
+
 class Usuario(AbstractUser):
     # Usuario propio; el rol se asigna en la relación N:M con Rol
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
@@ -27,6 +41,12 @@ class Usuario(AbstractUser):
 
     # Campos agregados para HU13 - Perfil ampliado
     intereses = models.TextField(blank=True, null=True, verbose_name="Intereses")
+    intereses_actividad = models.ManyToManyField(
+        TipoInteresActividad,
+        blank=True,
+        related_name='usuarios',
+        verbose_name='Intereses en actividades',
+    )
     habilidades = models.TextField(blank=True, null=True, verbose_name="Habilidades")
     biografia = models.TextField(blank=True, null=True, verbose_name="Sobre mí / Biografía")
 
@@ -37,4 +57,4 @@ class Usuario(AbstractUser):
         return self.roles.filter(nombre__iexact="Coordinador").exists()
 
     def rol_principal(self):
-        return self.roles.first() 
+        return self.roles.first()

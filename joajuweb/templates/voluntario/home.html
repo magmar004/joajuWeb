@@ -11,6 +11,30 @@
     {% if proxima %}
     <section aria-labelledby="proxima-actividad"><div class="section-label"><h2 class="panel-title" id="proxima-actividad">Tu próxima actividad</h2><span class="badge-soft badge-soft-success">Inscripto</span></div>{% include 'voluntario/includes/tarjetas.html' with actividades=proxima_lista destacada=True %}</section>
     {% endif %}
+    <section aria-labelledby="actividades-recomendadas">
+        <div class="section-label">
+            <h2 class="panel-title" id="actividades-recomendadas">Actividades recomendadas para vos</h2>
+            <a href="{% url 'voluntario:listado' %}" class="back-link mb-0">Explorar todas <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
+        </div>
+        {% if tiene_intereses %}
+            {% if recomendadas %}
+                {% include 'voluntario/includes/tarjetas.html' with actividades=recomendadas %}
+            {% else %}
+                <div class="surface-card empty-state mb-4">
+                    <i class="bi bi-stars d-block" aria-hidden="true"></i>
+                    <h3 class="h5 fw-bold text-dark">No hay nuevas recomendaciones para mostrar ahora</h3>
+                    <p class="text-muted small mb-0">Podés seguir explorando todas las actividades disponibles en el catálogo.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="surface-card empty-state mb-4">
+                <i class="bi bi-heart d-block" aria-hidden="true"></i>
+                <h3 class="h5 fw-bold text-dark">Contanos qué actividades te interesan</h3>
+                <p class="text-muted small">Elegí tus intereses en el perfil y te mostraremos actividades publicadas y vigentes de esas categorías.</p>
+                <a href="{% url 'perfil' %}" class="btn btn-brand-secondary">Configurar mis intereses</a>
+            </div>
+        {% endif %}
+    </section>
     <section aria-labelledby="actividades-abiertas">
         <div class="section-label"><h2 class="panel-title" id="actividades-abiertas">Actividades para sumarte</h2><a href="{% url 'voluntario:listado' %}" class="back-link mb-0">Ver todas <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a></div>
         {% include 'voluntario/includes/tarjetas.html' with actividades=abiertas %}

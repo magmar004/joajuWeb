@@ -51,6 +51,50 @@ class AreaActividad(models.TextChoices):
     OTRA = 'otra', 'Otra'
 
 
+class DepartamentoActividad(models.TextChoices):
+    ASUNCION = 'asuncion', 'Asunción'
+    CONCEPCION = 'concepcion', 'Concepción'
+    SAN_PEDRO = 'san_pedro', 'San Pedro'
+    CORDILLERA = 'cordillera', 'Cordillera'
+    GUAIRA = 'guaira', 'Guairá'
+    CAAGUAZU = 'caaguazu', 'Caaguazú'
+    CAAZAPA = 'caazapa', 'Caazapá'
+    ITAPUA = 'itapua', 'Itapúa'
+    MISIONES = 'misiones', 'Misiones'
+    PARAGUARI = 'paraguari', 'Paraguarí'
+    ALTO_PARANA = 'alto_parana', 'Alto Paraná'
+    CENTRAL = 'central', 'Central'
+    NEEMBUCU = 'neembucu', 'Ñeembucú'
+    AMAMBAY = 'amambay', 'Amambay'
+    CANINDEYU = 'canindeyu', 'Canindeyú'
+    PRESIDENTE_HAYES = 'presidente_hayes', 'Presidente Hayes'
+    BOQUERON = 'boqueron', 'Boquerón'
+    ALTO_PARAGUAY = 'alto_paraguay', 'Alto Paraguay'
+
+
+CIUDADES_CENTRAL = (
+    'Areguá',
+    'Capiatá',
+    'Fernando de la Mora',
+    'Guarambaré',
+    'Itá',
+    'Itauguá',
+    'Julián Augusto Saldívar',
+    'Lambaré',
+    'Limpio',
+    'Luque',
+    'Mariano Roque Alonso',
+    'Nueva Italia',
+    'Ñemby',
+    'San Antonio',
+    'San Lorenzo',
+    'Villa Elisa',
+    'Villeta',
+    'Ypacaraí',
+    'Ypané',
+)
+
+
 class Actividad(models.Model):
     # Finalizada conserva el historial y la asistencia, sin nuevas inscripciones.
     nombre = models.CharField(max_length=150, verbose_name="Nombre")
@@ -72,12 +116,26 @@ class Actividad(models.Model):
         default=AreaActividad.ASUNCION,
         verbose_name="Área",
     )
+    departamento = models.CharField(
+        max_length=30,
+        choices=DepartamentoActividad.choices,
+        blank=True,
+        default='',
+        verbose_name='Departamento',
+    )
+    ciudad = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Ciudad',
+    )
     ubicacion = models.CharField(
         max_length=150,
         blank=True,
         default='',
         verbose_name="Ubicación",
     )
+    imagen = models.ImageField(upload_to='actividades/', blank=True, null=True, verbose_name='Fotografía')
     estado = models.CharField(
         max_length=20,
         choices=EstadoActividad.choices,
@@ -104,6 +162,16 @@ class Actividad(models.Model):
 
     def esta_publicada(self):
         return self.estado == EstadoActividad.PUBLICADA
+
+    def get_localidad(self):
+        partes = [valor for valor in (self.ciudad, self.get_departamento_display() if self.departamento else '') if valor]
+        return ', '.join(partes)
+
+    def get_ubicacion_completa(self):
+        partes = [valor for valor in (self.ubicacion, self.ciudad, self.get_departamento_display() if self.departamento else '') if valor]
+        if not partes:
+            return self.get_area_display()
+        return ', '.join(partes)
 
     def esta_borrador(self):
         return self.estado == EstadoActividad.BORRADOR

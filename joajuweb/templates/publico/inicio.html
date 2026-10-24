@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Descubrí actividades | Joaju{% endblock %}
+
+{% block content %}
+<header class="public-navbar">
+    <nav class="layout-container public-navbar-inner" aria-label="Navegación principal">
+        <a class="public-brand" href="{% url 'inicio_publico' %}" aria-label="Joaju, inicio">
+            <span class="public-brand-mark"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span> Joaju
+        </a>
+        <div class="public-nav-links">
+            <a href="{% url 'inicio_publico' %}" aria-current="page">Inicio</a>
+            <a href="#eventos">Explorar actividades</a>
+            {% if user.is_authenticated %}
+                {% if user.es_coordinador %}<a href="{% url 'coordinador:home' %}">Mi panel</a>{% else %}<a href="{% url 'voluntario:home' %}">Mi panel</a>{% endif %}
+            {% endif %}
+        </div>
+        <div class="public-nav-actions">
+            {% if user.is_authenticated %}
+                {% include 'includes/menu_cuenta.html' %}
+            {% else %}
+                <a class="public-login" href="{% url 'login' %}">Iniciar sesión</a>
+                <a class="btn btn-brand-primary public-register" href="{% url 'registro' %}">Registrarse</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<main id="contenido" tabindex="-1">
+    <section class="public-hero">
+        <div class="layout-container public-hero-inner">
+            <div class="public-hero-copy">
+                <p class="hero-kicker">Comunidad · Voluntariado · Paraguay</p>
+                <h1>Encontrá una actividad que te inspire.</h1>
+                <p class="public-hero-description">Descubrí oportunidades para compartir tu tiempo, conectar con tu comunidad y generar un impacto positivo.</p>
+                <form method="get" action="{% url 'inicio_publico' %}" class="public-search" role="search">
+                    <label class="visually-hidden" for="buscar-actividad">Buscar actividades</label>
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="hidden" name="tipo" value="{{ tipo }}">
+                    <input type="hidden" name="departamento" value="{{ departamento }}">
+                    <input type="hidden" name="ciudad" value="{{ ciudad }}">
+                    <input type="search" id="buscar-actividad" name="q" value="{{ q }}" placeholder="¿Qué actividad estás buscando?" autocomplete="off">
+                    <button type="submit" class="btn btn-brand-primary">Buscar</button>
+                </form>
+                <form method="get" action="{% url 'inicio_publico' %}" class="public-type-filter">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    <div class="public-filter-field">
+                        <label for="tipo-actividad">Tipo de actividad</label>
+                        <select id="tipo-actividad" name="tipo" class="form-select custom-input">
+                            <option value="">Todos los tipos</option>
+                            {% for valor, etiqueta in tipos.choices %}
+                                <option value="{{ valor }}" {% if tipo == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="public-filter-field">
+                        <label for="departamento-actividad">Departamento</label>
+                        <select id="departamento-actividad" name="departamento" class="form-select custom-input">
+                            <option value="">Todos los departamentos</option>
+                            {% for valor, etiqueta in departamentos.choices %}
+                                <option value="{{ valor }}" {% if departamento == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="public-filter-field public-filter-field--city">
+                        <label for="ciudad-actividad">Ciudad</label>
+                        <div data-city-department="departamento-actividad" data-city-manual="ciudad-actividad" data-city-central="ciudad-central-actividad" data-central-department="central" data-city-required="false">
+                            <div data-city-manual-wrapper><input type="search" id="ciudad-actividad" name="ciudad" class="form-control custom-input" value="{{ ciudad }}" placeholder="Ciudad" autocomplete="address-level2"></div>
+                            <div data-city-central-wrapper hidden>
+                                <select id="ciudad-central-actividad" name="ciudad_central" class="form-select custom-input" disabled>
+                                    <option value="">Todas las ciudades</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-brand-secondary">Aplicar filtros</button>
+                </form>
+            </div>
+            <div class="public-hero-art" aria-hidden="true">
+                <span class="hero-art-orbit hero-art-orbit-one"></span>
+                <span class="hero-art-orbit hero-art-orbit-two"></span>
+                <span class="hero-art-spark hero-art-spark-one">✦</span>
+                <span class="hero-art-spark hero-art-spark-two">✳</span>
+                <div class="hero-art-card"><i class="bi bi-heart-fill"></i><span>Pequeñas acciones,<br>grandes encuentros.</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="public-events layout-container" id="eventos" aria-labelledby="eventos-titulo">
+        <div class="public-section-heading">
+            <div>
+                <p class="hero-kicker mb-2">Hacé lugar para algo bueno</p>
+                <h2 id="eventos-titulo">Actividades para descubrir</h2>
+                <p class="text-muted mb-0">Encontrá propuestas publicadas y vigentes de la comunidad.</p>
+            </div>
+            {% if hay_filtros %}<a class="public-clear-search" href="{% url 'inicio_publico' %}">Limpiar filtros</a>{% endif %}
+        </div>
+
+        {% if actividades %}
+            <div class="public-event-grid">
+                {% for actividad in actividades %}
+                    <article class="public-event-card">
+                        {% if actividad.imagen %}
+                            <img class="public-event-image" src="{{ actividad.imagen.url }}" alt="Imagen de {{ actividad.nombre }}">
+                        {% else %}
+                            <div class="public-event-art" aria-hidden="true"><span>{{ actividad.get_tipo_display }}</span><i class="bi bi-stars"></i></div>
+                        {% endif %}
+                        <div class="public-event-content">
+                            <p class="public-event-date"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ actividad.fecha|date:"d/m/Y" }}</p>
+                            <h3>{{ actividad.nombre }}</h3>
+                            <p class="public-event-description">{{ actividad.descripcion|truncatewords:24 }}</p>
+                            <p class="public-event-location"><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ actividad.get_ubicacion_completa }}</p>
+                            <a href="{% url 'actividad_publica_detalle' actividad.pk %}" class="btn btn-brand-primary public-event-button">Ver detalles <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="public-empty-state">
+                <span class="public-empty-icon"><i class="bi bi-calendar-heart" aria-hidden="true"></i></span>
+                {% if hay_filtros %}
+                    <h3>No encontramos actividades con esos filtros</h3>
+                    <p>Probá cambiar el tipo, la ubicación o las palabras de búsqueda.</p>
+                {% else %}
+                    <h3>Pronto habrá nuevas actividades</h3>
+                    <p>Estamos preparando próximos encuentros. Volvé a visitarnos para descubrirlos.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</main>
+<footer class="public-footer"><div class="layout-container">Joaju · Conectando personas con iniciativas que transforman.</div></footer>
+{% endblock %}

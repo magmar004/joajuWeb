@@ -5,10 +5,15 @@
 <main class="page detail-page" id="contenido" tabindex="-1"><div class="layout-container">
     <a href="{% url 'voluntario:listado' %}" class="back-link"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Volver a actividades</a>
     <header class="page-heading">
-        <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span><span class="badge-soft badge-soft-muted">{{ actividad.get_area_display }}</span>{% if actividad.esta_completa %}<span class="badge-soft badge-soft-warning">Completa</span>{% endif %}</div>
+        <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span><span class="badge-soft badge-soft-muted">{% if actividad.departamento %}{{ actividad.get_departamento_display }}{% else %}{{ actividad.get_area_display }}{% endif %}</span>{% if actividad.esta_completa %}<span class="badge-soft badge-soft-warning">Completa</span>{% endif %}</div>
         <h1 class="fw-bold text-dark mb-2">{{ actividad.nombre }}</h1>
-        {% if actividad.ubicacion %}<p class="text-muted mb-0"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ actividad.ubicacion }}</p>{% endif %}
+        {% if actividad.ubicacion or actividad.ciudad or actividad.departamento %}<p class="text-muted mb-0"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ actividad.get_ubicacion_completa }}</p>{% endif %}
     </header>
+    {% if actividad.imagen %}
+        <img src="{{ actividad.imagen.url }}" alt="Imagen de {{ actividad.nombre }}" class="public-detail-photo mb-4">
+    {% else %}
+        <div class="public-detail-banner mb-4" aria-hidden="true"><i class="bi bi-stars"></i></div>
+    {% endif %}
     {% include 'includes/mensajes.html' %}
     {% if actividad.esta_finalizada %}<div class="alert app-alert app-alert-success" role="status">Esta actividad fue dada por terminada. Las inscripciones están cerradas y las participaciones se conservan en el historial.</div>
     {% elif actividad.ya_finalizo %}<div class="alert app-alert app-alert-warning" role="status">Todas las jornadas terminaron. Las inscripciones están cerradas.</div>{% endif %}

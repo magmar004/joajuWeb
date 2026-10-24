@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ actividad.nombre }} | Joaju{% endblock %}
+
+{% block content %}
+<header class="public-navbar">
+    <nav class="layout-container public-navbar-inner" aria-label="Navegación principal">
+        <a class="public-brand" href="{% url 'inicio_publico' %}" aria-label="Joaju, inicio">
+            <span class="public-brand-mark"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span> Joaju
+        </a>
+        <div class="public-nav-links"><a href="{% url 'inicio_publico' %}">Inicio</a><a href="{% url 'inicio_publico' %}#eventos">Explorar actividades</a>{% if user.is_authenticated %}{% if user.es_coordinador %}<a href="{% url 'coordinador:home' %}">Mi panel</a>{% else %}<a href="{% url 'voluntario:home' %}">Mi panel</a>{% endif %}{% endif %}</div>
+        <div class="public-nav-actions">
+            {% if user.is_authenticated %}
+                {% include 'includes/menu_cuenta.html' %}
+            {% else %}
+                <a class="public-login" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Iniciar sesión</a>
+                <a class="btn btn-brand-primary public-register" href="{% url 'registro' %}">Registrarse</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<main class="public-detail-page layout-container" id="contenido" tabindex="-1">
+    <a href="{% url 'inicio_publico' %}#eventos" class="back-link"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Volver a actividades</a>
+    <div class="public-detail-grid">
+        <article>
+            {% if actividad.imagen %}
+                <img class="public-detail-photo" src="{{ actividad.imagen.url }}" alt="Imagen de {{ actividad.nombre }}">
+            {% else %}
+                <div class="public-detail-banner"><span class="badge-soft badge-soft-info">{{ actividad.get_tipo_display }}</span><span class="badge-soft badge-soft-muted">{% if actividad.departamento %}{{ actividad.get_departamento_display }}{% else %}{{ actividad.get_area_display }}{% endif %}</span><i class="bi bi-stars" aria-hidden="true"></i></div>
+            {% endif %}
+            <header class="page-heading public-detail-heading">
+                <p class="hero-kicker">Actividad publicada</p>
+                <h1>{{ actividad.nombre }}</h1>
+                <p class="public-detail-meta"><span><i class="bi bi-calendar3" aria-hidden="true"></i>{{ actividad.fecha|date:"l d \d\e F \d\e Y" }}</span><span><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ actividad.get_ubicacion_completa }}</span></p>
+            </header>
+            <section class="surface-card public-detail-copy"><h2 class="panel-title">Sobre esta actividad</h2><p class="detail-description mb-0">{{ actividad.descripcion }}</p></section>
+            {% if jornadas %}
+                <section class="surface-card public-detail-copy mt-4"><h2 class="panel-title">Fechas y horarios</h2><ul class="schedule-list">{% for jornada in jornadas %}<li><strong>{{ jornada.fecha|date:"d/m/Y" }}</strong><span class="text-muted">{% if jornada.hora_inicio %}{{ jornada.hora_inicio|time:"H:i" }}–{{ jornada.hora_fin|time:"H:i" }}{% else %}Horario sin configurar{% endif %}</span></li>{% endfor %}</ul></section>
+            {% endif %}
+        </article>
+        <aside class="public-detail-aside">
+            <section class="surface-card">
+                <p class="hero-kicker">Sumate a la experiencia</p>
+                <h2 class="panel-title">Tu próximo encuentro empieza acá</h2>
+                <dl class="summary-list"><div><dt>Fecha</dt><dd>{{ actividad.fecha|date:"d/m/Y" }}</dd></div><div><dt>Lugar</dt><dd>{{ actividad.get_ubicacion_completa }}</dd></div><div><dt>Cupos disponibles</dt><dd>{{ actividad.cupos_disponibles }}</dd></div></dl>
+                {% if user.is_authenticated %}
+                    {% if user.es_coordinador %}
+                        <p class="panel-copy mb-0">Los coordinadores no se inscriben como voluntarios.</p>
+                    {% elif actividad.esta_inscripto %}
+                        <p class="alert app-alert app-alert-success mb-0" role="status">Ya estás inscripto en esta actividad.</p>
+                    {% elif not actividad.inscripciones_abiertas %}
+                        <p class="panel-copy mb-0">Las inscripciones están cerradas para esta actividad.</p>
+                    {% elif not actividad.tiene_cupo %}
+                        <p class="alert app-alert app-alert-warning mb-0" role="status">La actividad está completa.</p>
+                    {% else %}
+                        <p class="panel-copy">Confirmá tu inscripción para participar.</p>
+                        <form method="post" action="{% url 'voluntario:inscribirse' actividad.pk %}">{% csrf_token %}<button type="submit" class="btn btn-brand-primary w-100">Inscribirme</button></form>
+                    {% endif %}
+                {% else %}
+                    <p class="panel-copy">Iniciá sesión o creá una cuenta para inscribirte.</p>
+                    <a class="btn btn-brand-primary w-100 mb-2" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Iniciar sesión</a>
+                    <a class="btn btn-brand-secondary w-100" href="{% url 'registro' %}">Registrarme</a>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+</main>
+{% endblock %}

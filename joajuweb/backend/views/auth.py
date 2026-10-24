@@ -7,6 +7,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from joajuweb.backend.forms import CustomLoginForm, RegistroForm
+from joajuweb.backend.models import DepartamentoActividad, TipoActividad
+from joajuweb.backend.servicios import filtrar_actividades_publicadas
 
 try:
     from joajuweb.backend.servicios import resumen_inicio_voluntario
@@ -66,9 +68,41 @@ class CustomLoginView(LoginView):
         return reverse(destino_segun_rol(self.request.user))
 
 
-@login_required
+def _render_inicio_publico(request):
+    q = request.GET.get('q', '').strip()
+    tipo = request.GET.get('tipo', '').strip()
+    departamento = request.GET.get('departamento', '').strip()
+    ciudad = request.GET.get('ciudad', '').strip()
+    if tipo not in TipoActividad.values:
+        tipo = ''
+    if departamento not in DepartamentoActividad.values:
+        departamento = ''
+    actividades = filtrar_actividades_publicadas(
+        tipo=tipo or None,
+        departamento=departamento or None,
+        ciudad=ciudad or None,
+        q=q,
+    ).prefetch_related('jornadas')
+    return render(request, 'publico/inicio.html', {
+        'actividades': actividades,
+        'q': q,
+        'tipo': tipo,
+        'tipos': TipoActividad,
+        'departamento': departamento,
+        'departamentos': DepartamentoActividad,
+        'ciudad': ciudad,
+        'hay_filtros': bool(q or tipo or departamento or ciudad),
+    })
+
+
 def home_view(request):
-    return redirect(destino_segun_rol(request.user))
+    if request.user.is_authenticated:
+        return redirect(destino_segun_rol(request.user))
+    return _render_inicio_publico(request)
+
+
+def inicio_publico_view(request):
+    return _render_inicio_publico(request)
 
 
 @login_required

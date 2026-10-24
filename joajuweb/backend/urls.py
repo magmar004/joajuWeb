@@ -12,12 +12,14 @@ from joajuweb.backend.views import (
     coordinador_home_view,
     coordinador_modulo_view,
     detalle_view,
+    detalle_publico_view,
     editar_view,
     gestionar_view,
     inscritos_view,
     historial_ajeno_view,
     historial_propio_view,
     home_view,
+    inicio_publico_view,
     inscribirse_view,
     listado_view,
     no_disponible_view,
@@ -36,6 +38,8 @@ def _vista(vista):
 
 urlpatterns = [
     path('', home_view, name='home'),
+    path('inicio/', inicio_publico_view, name='inicio_publico'),
+    path('actividades/<int:pk>/', detalle_publico_view, name='actividad_publica_detalle'),
     path('registro/', registro_view, name='registro'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Reportes | JoajuWeb{% endblock %}
 
@@ -63,10 +64,19 @@
                 <h2 class="panel-title">Actividades</h2>
                 <span class="section-count">{{ actividades|length }}</span>
             </div>
-            <div class="surface-card mb-4">
+            <details class="surface-card mb-4 report-picker" data-report-picker>
+                <summary class="report-picker-summary">
+                    <span>Elegir actividad</span>
+                    <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                </summary>
+                <div class="report-picker-content">
+                    <label for="buscar-actividad-reporte" class="form-label">Buscar actividad</label>
+                    <input type="search" id="buscar-actividad-reporte" class="form-control custom-input mb-3" placeholder="Escribí el nombre de una actividad" autocomplete="off" data-report-search>
+                    <p class="text-muted small mb-2" data-report-empty hidden>No hay actividades que coincidan con la búsqueda.</p>
+                    <div class="report-picker-options">
                 {% if actividades %}
                     {% for actividad in actividades %}
-                        <div class="list-row">
+                        <div class="list-row" data-report-option data-search-text="{{ actividad.nombre|lower }} {{ actividad.get_tipo_display|lower }} {{ actividad.fecha|date:'d/m/Y' }}">
                             <div>
                                 <strong>{{ actividad.nombre }}</strong>
                                 <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
@@ -79,7 +89,9 @@
                 {% else %}
                     <p class="text-muted small mb-0">{% if filtros.q %}Ninguna actividad coincide con la búsqueda.{% else %}No hay actividades con esos filtros.{% endif %}</p>
                 {% endif %}
-            </div>
+                    </div>
+                </div>
+            </details>
         </section>
 
         <section>
@@ -87,10 +99,19 @@
                 <h2 class="panel-title">Voluntarios</h2>
                 <span class="section-count">{{ voluntarios|length }}</span>
             </div>
-            <div class="surface-card mb-4">
+            <details class="surface-card mb-4 report-picker" data-report-picker>
+                <summary class="report-picker-summary">
+                    <span>Elegir voluntario</span>
+                    <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                </summary>
+                <div class="report-picker-content">
+                    <label for="buscar-voluntario-reporte" class="form-label">Buscar voluntario</label>
+                    <input type="search" id="buscar-voluntario-reporte" class="form-control custom-input mb-3" placeholder="Escribí un nombre o correo" autocomplete="off" data-report-search>
+                    <p class="text-muted small mb-2" data-report-empty hidden>No hay voluntarios que coincidan con la búsqueda.</p>
+                    <div class="report-picker-options">
                 {% if voluntarios %}
                     {% for voluntario in voluntarios %}
-                        <div class="list-row">
+                        <div class="list-row" data-report-option data-search-text="{{ voluntario.get_full_name|default:voluntario.username|lower }} {{ voluntario.username|lower }} {{ voluntario.email|lower }}">
                             <div>
                                 <strong>{{ voluntario.get_full_name|default:voluntario.username }}</strong>
                                 <div class="text-muted small">{{ voluntario.email }}</div>
@@ -103,7 +124,9 @@
                 {% else %}
                     <p class="text-muted small mb-0">{% if filtros.q %}Ningún voluntario coincide con la búsqueda.{% else %}No hay voluntarios inscriptos en el período.{% endif %}</p>
                 {% endif %}
-            </div>
+                    </div>
+                </div>
+            </details>
         </section>
 
         <section class="report-wide">
@@ -136,4 +159,5 @@
     </div>
 </div>
 </main>
+<script src="{% static 'js/reportes_busqueda.js' %}" defer></script>
 {% endblock %}

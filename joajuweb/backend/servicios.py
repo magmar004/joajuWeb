@@ -73,7 +73,7 @@ def _crear_con_codigo(actividad):
                 raise
     raise ActividadError('No se pudo generar el código. Intentá nuevamente.')
 
-CAMPOS_AVISO = ('nombre', 'descripcion', 'tipo', 'area', 'ubicacion', 'fecha', 'cupo')
+CAMPOS_AVISO = ('nombre', 'descripcion', 'tipo', 'departamento', 'ciudad', 'ubicacion', 'fecha', 'cupo')
 
 
 def guardar_borrador(form, coordinador, jornadas):
@@ -403,15 +403,19 @@ def _validar_cupo_disponible(actividad):
         raise InscripcionError('La actividad está completa. No quedan cupos disponibles.')
 
 
-def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None, q=''):
+def filtrar_actividades_publicadas(tipo=None, area=None, ubicacion=None, q='', departamento=None, ciudad=None):
     actividades = Actividad.vigentes()
     if tipo:
         actividades = actividades.filter(tipo=tipo)
     if area:
         actividades = actividades.filter(area=area)
+    if departamento:
+        actividades = actividades.filter(departamento=departamento)
+    if ciudad:
+        actividades = actividades.filter(ciudad__icontains=ciudad)
     if ubicacion:
         actividades = actividades.filter(ubicacion__icontains=ubicacion)
-    return aplicar_busqueda(actividades, q, ('nombre', 'descripcion', 'ubicacion'))
+    return aplicar_busqueda(actividades, q, ('nombre', 'descripcion', 'ubicacion', 'ciudad', 'departamento'))
 
 
 def aplicar_busqueda(queryset, texto, campos):
@@ -433,7 +437,11 @@ def coincide_busqueda(texto, *partes):
 
 def agrupar_actividades(actividades, agrupar='tipo'):
     if agrupar == 'area':
-        return _agrupar_por_choices(actividades, 'area', AreaActividad.choices)
+        grupos = OrderedDict()
+        for actividad in actividades:
+            titulo = actividad.get_localidad() or actividad.get_area_display()
+            grupos.setdefault(titulo, []).append(actividad)
+        return [{'titulo': titulo, 'actividades': items} for titulo, items in grupos.items()]
     if agrupar == 'ubicacion':
         grupos = OrderedDict()
         for actividad in actividades:
@@ -455,7 +463,7 @@ def _agrupar_por_choices(actividades, campo, choices):
     return grupos
 
 
-def resumen_inicio_voluntario(voluntario, limite_abiertas=3):
+def resumen_inicio_voluntario(voluntario, limite_abiertas=3, limite_recomendadas=3):
     ids_inscriptos = set(voluntario.inscripciones.values_list('actividad_id', flat=True))
     proximas = list(Actividad.vigentes())
     proxima = next((actividad for actividad in proximas if actividad.id in ids_inscriptos), None)
@@ -463,10 +471,21 @@ def resumen_inicio_voluntario(voluntario, limite_abiertas=3):
         actividad for actividad in proximas
         if proxima is None or actividad.id != proxima.id
     ][:limite_abiertas]
+    tipos_interes = list(voluntario.intereses_actividad.values_list('codigo', flat=True))
+    recomendadas = []
+    if tipos_interes:
+        recomendadas = list(
+            Actividad.vigentes()
+            .filter(tipo__in=tipos_interes)
+            .exclude(pk__in=ids_inscriptos)
+            .prefetch_related('jornadas')[:limite_recomendadas]
+        )
     return {
         'proxima': proxima,
         'proxima_lista': [proxima] if proxima else [],
         'abiertas': abiertas,
+        'recomendadas': recomendadas,
+        'tiene_intereses': bool(tipos_interes),
         'ids_inscriptos': ids_inscriptos,
     }
 
@@ -484,6 +503,10 @@ def _cambios_relevantes(actividad, datos):
         'fecha': 'Fecha',
         'tipo': 'Tipo',
         'area': 'Área',
+        'departamento': 'Departamento',
+        'ciudad': 'Ciudad',
+        'departamento': 'Departamento',
+        'ciudad': 'Ciudad',
         'ubicacion': 'Ubicación',
         'cupo': 'Cupo',
     }

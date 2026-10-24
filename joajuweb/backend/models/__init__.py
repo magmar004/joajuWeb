@@ -1,9 +1,11 @@
-from .usuarios import Rol, Usuario
+from .usuarios import Rol, TipoInteresActividad, Usuario
 
 try:
     from .actividades import (
         Actividad,
         AreaActividad,
+        CIUDADES_CENTRAL,
+        DepartamentoActividad,
         EstadoActividad,
         EstadoAsistencia,
         EstadoParticipacion,
@@ -15,6 +17,8 @@ try:
 except ImportError:
     Actividad = None
     AreaActividad = None
+    CIUDADES_CENTRAL = ()
+    DepartamentoActividad = None
     EstadoActividad = None
     EstadoAsistencia = None
     EstadoParticipacion = None
@@ -25,9 +29,12 @@ except ImportError:
 
 _all_ = [
     'Rol',
+    'TipoInteresActividad',
     'Usuario',
     'Actividad',
     'AreaActividad',
+    'CIUDADES_CENTRAL',
+    'DepartamentoActividad',
     'EstadoActividad',
     'EstadoAsistencia',
     'EstadoParticipacion',

@@ -84,14 +84,21 @@
                     </div>
                     <div class="col-md-6">
                         <span class="text-muted small d-block mb-2">Áreas de interés:</span>
+                        {% with intereses_seleccionados=user.intereses_actividad.all %}
+                            {% if intereses_seleccionados %}
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for interes in intereses_seleccionados %}
+                                        <span class="badge-soft px-3 py-2 fs-6 rounded-pill d-inline-flex align-items-center" style="background-color: #f0ebf8; color: #5a32a3; font-weight: 500;">
+                                            <i class="bi bi-star-fill me-1 text-warning"></i>{{ interes.nombre }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-muted fst-italic">Sin categorías seleccionadas.</span>
+                            {% endif %}
+                        {% endwith %}
                         {% if user.intereses %}
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge-soft px-3 py-2 fs-6 rounded-pill d-inline-flex align-items-center" style="background-color: #f0ebf8; color: #5a32a3; font-weight: 500;">
-                                    <i class="bi bi-star-fill me-1 text-warning"></i>{{ user.intereses }}
-                                </span>
-                            </div>
-                        {% else %}
-                            <span class="text-muted fst-italic">Sin intereses seleccionados.</span>
+                            <p class="text-muted small mt-2 mb-0">Texto anterior conservado como referencia: {{ user.intereses }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -158,19 +165,18 @@
                             {% if form.habilidades.errors %}<div class="text-danger small mt-1">{{ form.habilidades.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="{{ form.intereses.id_for_label }}" class="form-label">Áreas de interés</label>
-                            <div class="mb-2">
-                                <span class="text-muted small">Sugerencias rápidas (hacé clic para agregar):</span>
-                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" onclick="agregarInteres('Medio Ambiente')">+ Medio Ambiente</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" onclick="agregarInteres('Educación')">+ Educación</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" onclick="agregarInteres('Protección Animal')">+ Protección Animal</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" onclick="agregarInteres('Salud y Deporte')">+ Salud y Deporte</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" onclick="agregarInteres('Tecnología')">+ Tecnología</button>
-                                </div>
+                            <span class="form-label d-block">{{ form.intereses_actividad.label }}</span>
+                            <p class="text-muted small">Elegí una o más categorías para recibir recomendaciones.</p>
+                            <div class="interest-options" role="group" aria-label="Seleccioná tus intereses">
+                                {% for opcion in form.intereses_actividad %}
+                                    <div class="form-check interest-option">
+                                        {{ opcion.tag }}
+                                        <label class="form-check-label" for="{{ opcion.id_for_label }}">{{ opcion.choice_label }}</label>
+                                    </div>
+                                {% endfor %}
                             </div>
-                            {{ form.intereses }}
-                            {% if form.intereses.errors %}<div class="text-danger small mt-1">{{ form.intereses.errors.0 }}</div>{% endif %}
+                            {% if form.intereses_actividad.errors %}<div class="text-danger small mt-1">{{ form.intereses_actividad.errors.0 }}</div>{% endif %}
+                            {% if form.instance.intereses %}<div class="form-text mt-2">Tu texto anterior se conserva como referencia; las recomendaciones usan las categorías seleccionadas arriba: {{ form.instance.intereses }}</div>{% endif %}
                         </div>
                     </div>
 
@@ -203,18 +209,6 @@ function toggleModoEdicion() {
         lectura.style.display = 'block';
         btnTexto.textContent = 'Editar perfil';
         btn.classList.replace('btn-secondary', 'btn-outline-primary');
-    }
-}
-
-function agregarInteres(texto) {
-    var campo = document.getElementById('{{ form.intereses.id_for_label }}');
-    if (campo) {
-        var valorActual = campo.value.trim();
-        if (valorActual === '') {
-            campo.value = texto;
-        } else if (!valorActual.includes(texto)) {
-            campo.value = valorActual + ', ' + texto;
-        }
     }
 }
 

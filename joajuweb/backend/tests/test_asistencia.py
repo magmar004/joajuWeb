@@ -282,7 +282,7 @@ class AsistenciaTests(TestCase):
     def datos_formulario(self):
         return {
             'nombre': self.actividad.nombre, 'descripcion': 'Descripción actualizada', 'fecha': str(self.actividad.fecha),
-            'cupo': 10, 'tipo': 'comunitaria', 'area': 'asuncion', 'ubicacion': 'Asunción',
+            'cupo': 10, 'tipo': 'comunitaria', 'departamento': 'central', 'ciudad': 'San Lorenzo', 'ubicacion': 'Asunción',
             'jornadas-TOTAL_FORMS': 2, 'jornadas-INITIAL_FORMS': 2,
             'jornadas-0-id': self.jornada.pk, 'jornadas-0-fecha': str(self.jornada.fecha),
             'jornadas-0-hora_inicio': '10:00', 'jornadas-0-hora_fin': '13:00',

@@ -33,13 +33,17 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="area" class="form-label">Área</label>
-                <select name="area" id="area" class="form-select custom-input">
-                    <option value="">Todas</option>
-                    {% for valor, etiqueta in areas.choices %}
-                        <option value="{{ valor }}" {% if filtros.area == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                <label for="departamento" class="form-label">Departamento</label>
+                <select name="departamento" id="departamento" class="form-select custom-input">
+                    <option value="">Todos</option>
+                    {% for valor, etiqueta in departamentos.choices %}
+                        <option value="{{ valor }}" {% if filtros.departamento == valor %}selected{% endif %}>{{ etiqueta }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="col-md-3">
+                <label for="ciudad" class="form-label">Ciudad</label>
+                <input type="text" name="ciudad" id="ciudad" class="form-control custom-input" value="{{ filtros.ciudad }}" placeholder="Ciudad o distrito">
             </div>
             <div class="col-md-3">
                 <label for="ubicacion" class="form-label">Ubicación</label>

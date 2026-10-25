@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro de ayuda | Joaju{% endblock %}
+
+{% block content %}
+<header class="public-navbar">
+    <nav class="layout-container public-navbar-inner" aria-label="Navegación principal">
+        <a class="public-brand" href="{% url 'inicio_publico' %}" aria-label="Joaju, ir al inicio"><span class="public-brand-mark"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span> Joaju</a>
+        <div class="public-nav-links"><a href="{% url 'inicio_publico' %}">Inicio</a><a href="{% url 'inicio_publico' %}#eventos">Explorar actividades</a></div>
+        <div class="public-nav-actions">
+            {% if user.is_authenticated %}
+                {% include 'includes/menu_cuenta.html' %}
+            {% else %}
+                <a class="public-login" href="{% url 'login' %}">Iniciar sesión</a>
+                <a class="btn btn-brand-primary public-register" href="{% url 'registro' %}">Registrarse</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+<main class="help-page" id="contenido" tabindex="-1">
+    <section class="help-hero">
+        <div class="layout-container help-hero-inner">
+            <span class="help-hero-mark" aria-hidden="true"><i class="bi bi-chat-heart-fill"></i></span>
+            <p class="hero-kicker">CENTRO DE AYUDA JOAJU</p>
+            <h1>¿En qué podemos ayudarte?</h1>
+            <p class="help-hero-copy">Encontrá respuestas para participar, crear actividades y administrar tu cuenta.</p>
+            <label class="help-search" for="buscar-ayuda">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="buscar-ayuda" type="search" placeholder="Buscar artículos de ayuda" autocomplete="off" aria-describedby="ayuda-resultados">
+                <span class="visually-hidden" id="ayuda-resultados" aria-live="polite"></span>
+            </label>
+        </div>
+    </section>
+
+    <section class="layout-container help-articles" aria-labelledby="ayuda-destacada">
+        <div class="help-section-heading">
+            <div><p class="hero-kicker">RESPUESTAS RÁPIDAS</p><h2 id="ayuda-destacada">Artículos destacados</h2></div>
+            <a href="{% url 'inicio_publico' %}#eventos" class="help-browse-link">Explorar actividades <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="help-article-grid" id="help-article-grid">
+            <details class="help-article" data-search="crear cuenta registrarse usuario voluntario coordinador">
+                <summary><span class="help-article-icon"><i class="bi bi-person-plus" aria-hidden="true"></i></span><span>Crear una cuenta en Joaju</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>Elegí <a href="{% url 'registro' %}">Registrarse</a>, completá tus datos y seleccioná tu rol. Si te registrás como voluntario, también podés marcar tus intereses y decidir si querés recibir avisos por correo.</p></div>
+            </details>
+            <details class="help-article" data-search="buscar filtrar actividades tipo temática departamento ciudad localidad">
+                <summary><span class="help-article-icon"><i class="bi bi-search" aria-hidden="true"></i></span><span>Buscar y filtrar actividades</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>En <a href="{% url 'inicio_publico' %}#eventos">Explorar actividades</a>, usá el buscador por nombre y los filtros disponibles para temática, departamento y ciudad. Podés quitar los filtros para volver a ver el catálogo completo.</p></div>
+            </details>
+            <details class="help-article" data-search="inscribirme inscripción inscripcion cupo actividad participar voluntario">
+                <summary><span class="help-article-icon"><i class="bi bi-calendar-check" aria-hidden="true"></i></span><span>Inscribirme en una actividad</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>Abrí la actividad que te interesa y revisá su descripción, fechas, ubicación y cupos. Para inscribirte necesitás iniciar sesión con una cuenta de voluntario; el botón de inscripción aparece cuando hay cupos y la inscripción sigue abierta.</p></div>
+            </details>
+            <details class="help-article" data-search="avisos correo notificaciones intereses preferencias actividad">
+                <summary><span class="help-article-icon"><i class="bi bi-envelope-heart" aria-hidden="true"></i></span><span>Configurar intereses y avisos</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>Desde <a href="{% url 'perfil' %}">Mi perfil y cuenta</a> podés actualizar tus temáticas de interés y activar o desactivar los correos sobre nuevas actividades relacionadas.</p></div>
+            </details>
+            <details class="help-article" data-search="publicar crear editar actividad coordinador foto imagen temática">
+                <summary><span class="help-article-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></span><span>Publicar o editar una actividad</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>Las personas con rol coordinador pueden crear actividades desde su panel. Allí pueden completar la información, elegir temática, ubicación, fechas y agregar una fotografía opcional; luego pueden volver a editarla desde la gestión de actividades.</p></div>
+            </details>
+            <details class="help-article" data-search="asistencia presente ausente jornada coordinador participación">
+                <summary><span class="help-article-icon"><i class="bi bi-clipboard2-check" aria-hidden="true"></i></span><span>Registrar asistencia</span><i class="bi bi-chevron-down help-article-chevron" aria-hidden="true"></i></summary>
+                <div class="help-article-answer"><p>El coordinador puede abrir el registro de asistencia de una actividad desde su panel, marcar la participación de las personas inscriptas y guardar los cambios por jornada.</p></div>
+            </details>
+        </div>
+        <p class="help-no-results" id="help-no-results" hidden>No encontramos artículos con esa búsqueda. Probá con otra palabra.</p>
+    </section>
+
+    <section class="help-contact">
+        <div class="layout-container help-contact-inner">
+            <span class="help-contact-icon" aria-hidden="true"><i class="bi bi-compass"></i></span>
+            <div><p class="hero-kicker">SEGUÍ EXPLORANDO</p><h2>¿Tenés más preguntas?</h2><p>Consultá la información y los datos de cada actividad para elegir cómo participar.</p></div>
+            <a class="btn btn-brand-primary" href="{% url 'inicio_publico' %}#eventos">Explorar actividades <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+        </div>
+    </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('buscar-ayuda');
+    const articles = Array.from(document.querySelectorAll('.help-article'));
+    const emptyState = document.getElementById('help-no-results');
+    const count = document.getElementById('ayuda-resultados');
+    if (!input) return;
+    input.addEventListener('input', function () {
+        const query = input.value.trim().toLocaleLowerCase('es');
+        let visible = 0;
+        articles.forEach(function (article) {
+            const matches = !query || (article.dataset.search + ' ' + article.textContent).toLocaleLowerCase('es').includes(query);
+            article.hidden = !matches;
+            if (matches) visible += 1;
+        });
+        emptyState.hidden = visible > 0;
+        count.textContent = query ? visible + (visible === 1 ? ' artículo encontrado' : ' artículos encontrados') : '';
+    });
+});
+</script>
+{% endblock %}

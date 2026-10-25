@@ -136,6 +136,36 @@
 .joaju-ui .report-picker-content { padding: 1rem 1.25rem; }
 .joaju-ui .report-picker-options { max-height: 24rem; overflow-y: auto; overscroll-behavior: contain; }
 .joaju-ui .report-picker-options .list-row:first-child { padding-top: .25rem; }
+.joaju-ui .report-picker-options .report-activity-option { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.joaju-ui .report-picker-options .report-activity-option:last-child { border-bottom: 0; }
+.joaju-ui .report-picker-options .report-activity-option:hover,
+.joaju-ui .report-picker-options .report-activity-option:focus-visible,
+.joaju-ui .report-picker-options .report-activity-option[aria-pressed="true"] { background: var(--accent-soft); outline: 0; }
+.joaju-ui .report-activity-dashboard { padding: 1.25rem; }
+.joaju-ui .report-activity-dashboard[hidden] { display: none; }
+.joaju-ui .report-activity-dashboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.joaju-ui .report-activity-dashboard-heading h3 { margin: 0 0 .25rem; color: var(--ink); font-size: 1.15rem; font-weight: 750; }
+.joaju-ui .report-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; padding-top: 1rem; }
+.joaju-ui .report-chart-card { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.joaju-ui .report-chart-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
+.joaju-ui .report-chart-heading h4 { margin: 0 0 .2rem; color: var(--ink); font-size: .9rem; font-weight: 750; }
+.joaju-ui .report-chart-heading p { margin: 0; color: var(--muted); font-size: .76rem; }
+.joaju-ui .report-chart-heading > i { color: var(--accent); }
+.joaju-ui .report-chart-content { display: flex; align-items: center; justify-content: center; gap: clamp(.75rem, 2vw, 1.5rem); padding-top: .9rem; }
+.joaju-ui .report-donut { display: grid; width: clamp(6.5rem, 10vw, 8rem); flex: 0 0 auto; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(var(--chart-color) 0 var(--chart-fill), var(--chart-track) var(--chart-fill) 100%); transform: rotate(-90deg); }
+.joaju-ui .report-donut--occupancy { --chart-color: #5548c8; --chart-track: #e9e6f3; }
+.joaju-ui .report-donut--attendance { --chart-color: #2e9b70; --chart-track: #f0a29a; }
+.joaju-ui .report-donut-center { display: flex; width: 72%; aspect-ratio: 1; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: var(--surface); transform: rotate(90deg); }
+.joaju-ui .report-donut-center strong { color: var(--navy); font-size: 1.35rem; line-height: 1.1; }
+.joaju-ui .report-donut-center span { margin-top: .2rem; color: var(--muted); font-size: .65rem; }
+.joaju-ui .report-chart-legend { display: grid; min-width: 7rem; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.joaju-ui .report-chart-legend li { display: grid; grid-template-columns: .6rem minmax(0, 1fr) auto; align-items: center; gap: .45rem; color: var(--muted); font-size: .74rem; }
+.joaju-ui .report-chart-legend strong { color: var(--ink); font-size: .8rem; }
+.joaju-ui .report-chart-swatch { width: .6rem; height: .6rem; border-radius: 50%; background: var(--accent); }
+.joaju-ui .report-chart-swatch--free { background: #d9d5e6; }
+.joaju-ui .report-chart-swatch--present { background: #2e9b70; }
+.joaju-ui .report-chart-swatch--absent { background: #f0a29a; }
+.joaju-ui .report-activity-dashboard-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .9rem; }
 .joaju-ui .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
 .joaju-ui .stats-grid .stat-card { height: 100%; }
 .joaju-ui .stat-card .stat-label { min-height: 2.5em; }
@@ -163,6 +193,29 @@
 .joaju-ui .auth-layout .auth-hero::after { width: 36rem; height: 36rem; top: auto; right: auto; bottom: -18rem; left: -15rem; }
 .joaju-ui .auth-layout .auth-headline { max-width: 15ch; font-size: clamp(2.1rem, 3.2vw, 3.3rem); line-height: 1.2; }
 .joaju-ui .auth-layout .auth-hero p { max-width: 44ch; }
+.joaju-ui .auth-layout .auth-hero-eyebrow { color: #c9c2ff; font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+.joaju-ui .auth-layout .auth-hero-content { position: relative; z-index: 1; }
+.joaju-ui .auth-layout .auth-hero-art { position: relative; display: grid; place-items: center; width: min(100%, 25rem); height: 10rem; margin: .25rem 0 1.35rem; overflow: hidden; border: 1px solid rgba(255,255,255,.16); border-radius: 1.25rem; background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.035)); box-shadow: 0 1rem 3rem rgba(13,9,41,.16); }
+.joaju-ui .auth-layout .auth-art-orbit { position: absolute; width: 9rem; height: 9rem; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; }
+.joaju-ui .auth-layout .auth-art-orbit--two { width: 13rem; height: 13rem; border-style: dashed; opacity: .55; }
+.joaju-ui .auth-layout .auth-art-center { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; border: 1px solid rgba(255,255,255,.32); border-radius: 1.15rem; color: #fff; font-size: 1.4rem; background: linear-gradient(145deg, #8e7bff, #6555dc); box-shadow: 0 .7rem 1.7rem rgba(11,7,38,.3); transform: rotate(-8deg); }
+.joaju-ui .auth-layout .auth-art-icon { position: absolute; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid rgba(255,255,255,.24); border-radius: .9rem; color: #f4f1ff; background: rgba(255,255,255,.12); backdrop-filter: blur(8px); font-size: 1.1rem; }
+.joaju-ui .auth-layout .auth-art-icon--people { top: 1.3rem; left: calc(50% - 6.5rem); transform: rotate(-9deg); }
+.joaju-ui .auth-layout .auth-art-icon--leaf { right: calc(50% - 6.5rem); bottom: 1.5rem; color: #d5ffd9; transform: rotate(8deg); }
+.joaju-ui .auth-layout .auth-art-icon--spark { top: 1.5rem; right: calc(50% - 5.8rem); color: #ffe8a8; }
+.joaju-ui .auth-layout .auth-art-caption { position: absolute; bottom: .55rem; color: rgba(255,255,255,.72); font-size: .69rem; letter-spacing: .03em; }
+.joaju-ui .auth-layout .auth-hero-points { display: flex; flex-wrap: wrap; gap: .5rem; }
+.joaju-ui .auth-layout .auth-hero-points span { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .65rem; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: rgba(255,255,255,.88); background: rgba(255,255,255,.075); font-size: .72rem; }
+.joaju-ui .auth-layout .auth-hero-points i { color: #c7beff; }
+.joaju-ui .auth-layout .auth-hero-art--register { background: linear-gradient(125deg, rgba(255,255,255,.11), rgba(116,99,227,.13)); }
+.joaju-ui .auth-layout .register-art-path { position: absolute; left: calc(50% - 5.5rem); top: 2.1rem; width: 9rem; height: 4rem; border-top: 1px solid rgba(221,216,255,.46); border-radius: 50%; transform: rotate(22deg); }
+.joaju-ui .auth-layout .register-art-path--two { left: calc(50% - 3.6rem); top: 3.1rem; transform: rotate(-29deg); }
+.joaju-ui .auth-layout .register-art-node { position: absolute; display: grid; place-items: center; width: 2.7rem; height: 2.7rem; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; color: #f8f6ff; background: linear-gradient(145deg, rgba(150,135,255,.9), rgba(100,82,213,.92)); box-shadow: 0 .6rem 1.5rem rgba(15,10,48,.25); font-size: 1.05rem; }
+.joaju-ui .auth-layout .register-art-node--main { z-index: 1; left: calc(50% - 1.8rem); top: 2.45rem; width: 3.6rem; height: 3.6rem; border-radius: 1.25rem; color: #fff; background: linear-gradient(145deg, #9b8aff, #6251d3); font-size: 1.45rem; transform: rotate(-7deg); }
+.joaju-ui .auth-layout .register-art-node--cause { left: calc(50% - 7.6rem); top: 1.35rem; color: #ffe4f1; }
+.joaju-ui .auth-layout .register-art-node--community { right: calc(50% - 7.6rem); top: 1.55rem; color: #e1dcff; }
+.joaju-ui .auth-layout .register-art-node--idea { left: calc(50% + 3.6rem); bottom: 1.25rem; color: #ffedbd; }
+.joaju-ui .auth-layout .register-art-caption { position: absolute; bottom: .55rem; color: rgba(255,255,255,.75); font-size: .69rem; letter-spacing: .03em; }
 .joaju-ui .auth-form > .mb-4 { margin-bottom: 2rem !important; }
 .joaju-ui .recovery-page { padding-block: 2rem; }
 .joaju-ui .recovery-page .surface-card--auth { max-width: 500px; padding: clamp(1.5rem, 4vw, 2.5rem); }
@@ -213,6 +266,9 @@
     .joaju-ui .navbar-links { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; overflow-x: auto; scrollbar-width: thin; padding-block: .15rem; }
 }
 @media (max-width: 575.98px) {
+    .joaju-ui .report-chart-grid { grid-template-columns: 1fr; }
+    .joaju-ui .report-activity-dashboard-heading { flex-direction: column; }
+    .joaju-ui .report-activity-dashboard-footer { align-items: flex-start; flex-direction: column; }
     .joaju-ui .page { padding-top: 1.25rem; padding-bottom: 2.5rem; }
     .joaju-ui .layout-container { padding-inline: 1rem; }
     .joaju-ui .navbar-layout { gap: .2rem .6rem; }

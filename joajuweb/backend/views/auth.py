@@ -83,6 +83,54 @@ def _render_inicio_publico(request):
         ciudad=ciudad or None,
         q=q,
     ).prefetch_related('jornadas')
+    opciones_departamento = dict(DepartamentoActividad.choices)
+    valores_activos = []
+    if q:
+        valores_activos.append(('q', 'Búsqueda', q))
+    if tipo:
+        valores_activos.append(('tipo', 'Tipo', TipoActividad(tipo).label))
+    if departamento:
+        valores_activos.append(('departamento', 'Departamento', opciones_departamento[departamento]))
+    if ciudad:
+        valores_activos.append(('ciudad', 'Ciudad', ciudad))
+    filtros_activos = []
+    for clave, etiqueta, valor in valores_activos:
+        parametros = request.GET.copy()
+        parametros.pop(clave, None)
+        destino = reverse('inicio_publico')
+        if parametros:
+            destino = f'{destino}?{parametros.urlencode()}'
+        filtros_activos.append({'etiqueta': etiqueta, 'valor': valor, 'url': destino})
+    iconos_tematica = {
+        'ambiental': 'bi-tree',
+        'educativa': 'bi-mortarboard',
+        'comunitaria': 'bi-people-fill',
+        'salud': 'bi-heart-pulse',
+        'cultural': 'bi-palette-fill',
+        'otra': 'bi-stars',
+    }
+    tematicas = []
+    for valor, etiqueta in TipoActividad.choices:
+        parametros = request.GET.copy()
+        if parametros.get('tipo') == valor:
+            parametros.pop('tipo', None)
+        else:
+            parametros['tipo'] = valor
+        destino = reverse('inicio_publico')
+        if parametros:
+            destino = f'{destino}?{parametros.urlencode()}'
+        tematicas.append({
+            'valor': valor,
+            'etiqueta': etiqueta,
+            'icono': iconos_tematica.get(valor, 'bi-stars'),
+            'url': f'{destino}#eventos',
+            'activa': tipo == valor,
+        })
+    parametros_todas = request.GET.copy()
+    parametros_todas.pop('tipo', None)
+    destino_todas = reverse('inicio_publico')
+    if parametros_todas:
+        destino_todas = f'{destino_todas}?{parametros_todas.urlencode()}'
     return render(request, 'publico/inicio.html', {
         'actividades': actividades,
         'q': q,
@@ -92,6 +140,9 @@ def _render_inicio_publico(request):
         'departamentos': DepartamentoActividad,
         'ciudad': ciudad,
         'hay_filtros': bool(q or tipo or departamento or ciudad),
+        'filtros_activos': filtros_activos,
+        'tematicas': tematicas,
+        'url_todas_tematica': f'{destino_todas}#eventos',
     })
 
 
@@ -103,6 +154,10 @@ def home_view(request):
 
 def inicio_publico_view(request):
     return _render_inicio_publico(request)
+
+
+def ayuda_view(request):
+    return render(request, 'publico/ayuda.html')
 
 
 @login_required

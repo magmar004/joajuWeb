@@ -47,6 +47,10 @@ class Usuario(AbstractUser):
         related_name='usuarios',
         verbose_name='Intereses en actividades',
     )
+    recibir_avisos_actividades = models.BooleanField(
+        default=False,
+        verbose_name='Recibir avisos de nuevas actividades',
+    )
     habilidades = models.TextField(blank=True, null=True, verbose_name="Habilidades")
     biografia = models.TextField(blank=True, null=True, verbose_name="Sobre mí / Biografía")
 

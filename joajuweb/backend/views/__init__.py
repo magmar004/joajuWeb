@@ -1,5 +1,6 @@
 from .auth import (
     CustomLoginView,
+    ayuda_view,
     coordinador_home_view,
     coordinador_modulo_view,
     home_view,
@@ -60,6 +61,7 @@ except ImportError:
 _all_ = [
     'registro_view',
     'CustomLoginView',
+    'ayuda_view',
     'home_view',
     'inicio_publico_view',
     'voluntario_home_view',

@@ -5,6 +5,7 @@ from joajuweb.backend.forms import CustomSetPasswordForm
 from joajuweb.backend.views import (
     CustomLoginView,
     asistencia_view,
+    ayuda_view,
     confirmar_asistencia_view,
     baja_inscripcion_view,
     cancelar_view,
@@ -39,6 +40,7 @@ def _vista(vista):
 urlpatterns = [
     path('', home_view, name='home'),
     path('inicio/', inicio_publico_view, name='inicio_publico'),
+    path('ayuda/', ayuda_view, name='ayuda'),
     path('actividades/<int:pk>/', detalle_publico_view, name='actividad_publica_detalle'),
     path('registro/', registro_view, name='registro'),
     path('login/', CustomLoginView.as_view(), name='login'),

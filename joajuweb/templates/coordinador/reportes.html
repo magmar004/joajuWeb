@@ -20,10 +20,6 @@
 
     <form method="get" class="surface-card filter-bar mb-4">
         <div class="row g-3 align-items-end">
-            <div class="col-12">
-                <label for="q" class="form-label">Buscar</label>
-                <input type="search" name="q" id="q" class="form-control custom-input" value="{{ filtros.q }}" placeholder="Actividad, voluntario o correo" autocomplete="off">
-            </div>
             <div class="col-md-4">
                 <label for="fecha_desde" class="form-label">Desde</label>
                 <input type="date" name="fecha_desde" id="fecha_desde" class="form-control custom-input" value="{{ filtros.fecha_desde }}">
@@ -64,9 +60,36 @@
                 <h2 class="panel-title">Actividades</h2>
                 <span class="section-count">{{ actividades|length }}</span>
             </div>
+            <section class="surface-card report-activity-dashboard mb-3" data-activity-dashboard hidden aria-live="polite" aria-labelledby="actividad-dashboard-titulo">
+                <div class="report-activity-dashboard-heading">
+                    <div>
+                        <p class="hero-kicker mb-1">RESUMEN DE ACTIVIDAD</p>
+                        <h3 id="actividad-dashboard-titulo" data-activity-name></h3>
+                        <p class="text-muted small mb-0" data-activity-meta></p>
+                    </div>
+                    <span class="badge-soft badge-soft-info" data-activity-state></span>
+                </div>
+                <div class="report-chart-grid">
+                    <section class="report-chart-card" aria-labelledby="ocupacion-chart-title">
+                        <div class="report-chart-heading"><div><h4 id="ocupacion-chart-title">Ocupación de cupos</h4><p data-activity-capacity-label></p></div><i class="bi bi-people" aria-hidden="true"></i></div>
+                        <div class="report-chart-content">
+                            <div class="report-donut report-donut--occupancy" data-activity-occupancy-chart role="img" aria-label="Ocupación de cupos" style="--chart-fill: 0%"><div class="report-donut-center"><strong data-activity-occupancy-percent>0%</strong><span>ocupados</span></div></div>
+                            <ul class="report-chart-legend"><li><span class="report-chart-swatch report-chart-swatch--occupancy"></span><span>Inscriptos</span><strong data-activity-registered>0</strong></li><li><span class="report-chart-swatch report-chart-swatch--free"></span><span>Disponibles</span><strong data-activity-spots>0</strong></li></ul>
+                        </div>
+                    </section>
+                    <section class="report-chart-card" aria-labelledby="asistencia-chart-title">
+                        <div class="report-chart-heading"><div><h4 id="asistencia-chart-title">Asistencia registrada</h4><p data-activity-attendance-total>Por jornada</p></div><i class="bi bi-clipboard2-check" aria-hidden="true"></i></div>
+                        <div class="report-chart-content">
+                            <div class="report-donut report-donut--attendance" data-activity-attendance-chart role="img" aria-label="Asistencia registrada" style="--chart-fill: 0%"><div class="report-donut-center"><strong data-activity-attendance-percent>—</strong><span data-activity-attendance-label>sin datos</span></div></div>
+                            <ul class="report-chart-legend"><li><span class="report-chart-swatch report-chart-swatch--present"></span><span>Presentes</span><strong data-activity-present>0</strong></li><li><span class="report-chart-swatch report-chart-swatch--absent"></span><span>Ausentes</span><strong data-activity-absent>0</strong></li></ul>
+                        </div>
+                    </section>
+                </div>
+                <div class="report-activity-dashboard-footer"><span class="text-muted small" data-activity-attendance-note></span><button class="btn btn-brand-secondary btn-sm" type="button" data-activity-clear>Quitar selección</button></div>
+            </section>
             <details class="surface-card mb-4 report-picker" data-report-picker>
                 <summary class="report-picker-summary">
-                    <span>Elegir actividad</span>
+                    <span data-report-picker-label>Elegir actividad</span>
                     <i class="bi bi-chevron-down" aria-hidden="true"></i>
                 </summary>
                 <div class="report-picker-content">
@@ -76,7 +99,7 @@
                     <div class="report-picker-options">
                 {% if actividades %}
                     {% for actividad in actividades %}
-                        <div class="list-row" data-report-option data-search-text="{{ actividad.nombre|lower }} {{ actividad.get_tipo_display|lower }} {{ actividad.fecha|date:'d/m/Y' }}">
+                        <button type="button" class="list-row report-activity-option" data-report-option data-search-text="{{ actividad.nombre|lower }} {{ actividad.get_tipo_display|lower }} {{ actividad.fecha|date:'d/m/Y' }}" data-actividad-nombre="{{ actividad.nombre }}" data-actividad-tipo="{{ actividad.get_tipo_display }}" data-actividad-fecha="{{ actividad.fecha|date:'d/m/Y' }}" data-actividad-estado="{{ actividad.get_estado_display }}" data-actividad-cupo="{{ actividad.cupo }}" data-actividad-inscriptos="{{ actividad.n_inscriptos }}" data-actividad-presentes="{{ actividad.n_presentes }}" data-actividad-ausentes="{{ actividad.n_ausentes }}" data-actividad-ubicacion="{{ actividad.get_ubicacion_completa }}" aria-pressed="false">
                             <div>
                                 <strong>{{ actividad.nombre }}</strong>
                                 <div class="text-muted small">{{ actividad.get_tipo_display }} · {{ actividad.fecha|date:"d/m/Y" }} · {{ actividad.get_estado_display }}</div>
@@ -84,7 +107,7 @@
                             <div class="text-muted small">
                                 {{ actividad.n_inscriptos }} inscriptos · {{ actividad.n_presentes }} presentes · {{ actividad.n_ausentes }} ausentes (por jornada)
                             </div>
-                        </div>
+                        </button>
                     {% endfor %}
                 {% else %}
                     <p class="text-muted small mb-0">{% if filtros.q %}Ninguna actividad coincide con la búsqueda.{% else %}No hay actividades con esos filtros.{% endif %}</p>
@@ -159,5 +182,5 @@
     </div>
 </div>
 </main>
-<script src="{% static 'js/reportes_busqueda.js' %}" defer></script>
+<script src="{% static 'js/reportes_busqueda.js' %}?v=actividad-dashboard-charts-1" defer></script>
 {% endblock %}

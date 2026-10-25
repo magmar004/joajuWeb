@@ -10,12 +10,26 @@
             <span class="fs-4 fw-bold">Joaju</span>
         </a>
 
-        <div class="my-auto pe-lg-4">
-            <p class="hero-kicker text-white-50 mb-3">Bienvenida</p>
-            <p class="auth-headline fw-bold mb-3">Conectá personas con causas que importan.</p>
-            <p class="text-white-50 lead fs-6 mb-0">
-                Coordiná proyectos, administrá cupos y seguí la participación desde un solo lugar.
+        <div class="my-auto pe-lg-4 auth-hero-content">
+            <p class="auth-hero-eyebrow mb-3"><i class="bi bi-stars me-2" aria-hidden="true"></i>UN LUGAR PARA HACER LA DIFERENCIA</p>
+            <p class="auth-headline fw-bold mb-3">Las buenas ideas crecen cuando nos sumamos.</p>
+            <p class="text-white-50 lead fs-6 mb-4">
+                Creá tu cuenta para encontrar causas que te mueven, participar en actividades o impulsar iniciativas en tu comunidad.
             </p>
+            <div class="auth-hero-art auth-hero-art--register" aria-hidden="true">
+                <div class="register-art-path register-art-path--one"></div>
+                <div class="register-art-path register-art-path--two"></div>
+                <div class="register-art-node register-art-node--main"><i class="bi bi-person-plus-fill"></i></div>
+                <div class="register-art-node register-art-node--cause"><i class="bi bi-heart-fill"></i></div>
+                <div class="register-art-node register-art-node--community"><i class="bi bi-people-fill"></i></div>
+                <div class="register-art-node register-art-node--idea"><i class="bi bi-lightbulb-fill"></i></div>
+                <span class="register-art-caption">Una cuenta, muchas formas de sumar</span>
+            </div>
+            <div class="auth-hero-points">
+                <span><i class="bi bi-compass" aria-hidden="true"></i> Encontrá tu causa</span>
+                <span><i class="bi bi-calendar-heart" aria-hidden="true"></i> Participá a tu manera</span>
+                <span><i class="bi bi-lightbulb" aria-hidden="true"></i> Compartí tus ideas</span>
+            </div>
         </div>
 
         <p class="text-white-50 small mb-0">&copy; {% now "Y" %} Joaju</p>
@@ -95,6 +109,28 @@
                     {% endif %}
                 </div>
 
+                <section class="surface-card p-3 mb-4" id="preferencias-avisos-registro"
+                    data-volunteer-role="{{ form.voluntario_role_value }}" aria-labelledby="preferencias-registro-titulo">
+                    <h2 class="panel-title" id="preferencias-registro-titulo">Tus intereses y avisos</h2>
+                    <p class="text-muted small">Elegí las temáticas que te interesan. También podés recibir un correo cuando se publique una actividad relacionada.</p>
+                    <span class="form-label d-block">Temáticas de interés</span>
+                    <div class="interest-options" role="group" aria-label="Temáticas de interés">
+                        {% for opcion in form.intereses_actividad %}
+                            <div class="form-check interest-option">
+                                {{ opcion.tag }}
+                                <label class="form-check-label" for="{{ opcion.id_for_label }}">{{ opcion.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.intereses_actividad.errors %}<div class="text-danger small mt-2">{{ form.intereses_actividad.errors.0 }}</div>{% endif %}
+                    <div class="form-check mt-3">
+                        {{ form.recibir_avisos_actividades }}
+                        <label class="form-check-label" for="{{ form.recibir_avisos_actividades.id_for_label }}">{{ form.recibir_avisos_actividades.label }}</label>
+                    </div>
+                    <p class="form-text mb-0">Es opcional y podés desactivarlo desde tu perfil cuando quieras.</p>
+                    {% if form.recibir_avisos_actividades.errors %}<div class="text-danger small mt-2">{{ form.recibir_avisos_actividades.errors.0 }}</div>{% endif %}
+                </section>
+
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
@@ -124,4 +160,16 @@
         </div>
     </div>
 </main>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rol = document.getElementById('{{ form.rol.id_for_label }}');
+    const preferencias = document.getElementById('preferencias-avisos-registro');
+    if (!rol || !preferencias) return;
+    function actualizarPreferencias() {
+        preferencias.hidden = Boolean(rol.value) && rol.value !== preferencias.dataset.volunteerRole;
+    }
+    rol.addEventListener('change', actualizarPreferencias);
+    actualizarPreferencias();
+});
+</script>
 {% endblock %}

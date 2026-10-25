@@ -18,7 +18,11 @@ from joajuweb.backend.models import (
     TipoActividad,
     Usuario,
 )
-from joajuweb.backend.notificaciones import avisar_cancelacion, avisar_modificacion
+from joajuweb.backend.notificaciones import (
+    avisar_actividad_publicada,
+    avisar_cancelacion,
+    avisar_modificacion,
+)
 
 
 class AsistenciaError(Exception):
@@ -81,7 +85,9 @@ def guardar_borrador(form, coordinador, jornadas):
 
 
 def publicar(form, coordinador, jornadas):
-    return _persistir(form, coordinador, EstadoActividad.PUBLICADA, jornadas)
+    actividad = _persistir(form, coordinador, EstadoActividad.PUBLICADA, jornadas)
+    transaction.on_commit(lambda: avisar_actividad_publicada(actividad), robust=True)
+    return actividad
 
 
 @transaction.atomic
@@ -114,7 +120,8 @@ def modificar_actividad(form, coordinador, jornadas, publicar_ahora=False):
         cambios.append('Jornadas u horarios de Asunción actualizados. Consultá el detalle de la actividad.')
 
     actividad = form.save(commit=False)
-    if publicar_ahora and actividad.esta_borrador():
+    se_publica_ahora = publicar_ahora and actividad.esta_borrador()
+    if se_publica_ahora:
         actividad.estado = EstadoActividad.PUBLICADA
     actividad.save()
     _guardar_jornadas(actividad, jornadas)
@@ -122,6 +129,8 @@ def modificar_actividad(form, coordinador, jornadas, publicar_ahora=False):
     avisos = 0
     if estaba_publicada and cambios:
         avisos = avisar_modificacion(actividad, cambios)
+    if se_publica_ahora:
+        transaction.on_commit(lambda: avisar_actividad_publicada(actividad), robust=True)
     return actividad, avisos
 
 

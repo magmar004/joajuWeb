@@ -102,6 +102,14 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="mt-4">
+                    <span class="text-muted small d-block mb-1">Avisos de nuevas actividades:</span>
+                    {% if user.recibir_avisos_actividades %}
+                        <span class="badge-soft badge-soft-success">Activados para tus intereses</span>
+                    {% else %}
+                        <span class="text-muted fst-italic">Desactivados</span>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- FORMULARIO DE EDICIÓN (Oculto por defecto) -->
@@ -177,6 +185,14 @@
                             </div>
                             {% if form.intereses_actividad.errors %}<div class="text-danger small mt-1">{{ form.intereses_actividad.errors.0 }}</div>{% endif %}
                             {% if form.instance.intereses %}<div class="form-text mt-2">Tu texto anterior se conserva como referencia; las recomendaciones usan las categorías seleccionadas arriba: {{ form.instance.intereses }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.recibir_avisos_actividades }}
+                                <label class="form-check-label" for="{{ form.recibir_avisos_actividades.id_for_label }}">{{ form.recibir_avisos_actividades.label }}</label>
+                            </div>
+                            <p class="form-text mt-1 mb-0">Te enviaremos un correo cuando se publique una actividad de alguna temática seleccionada.</p>
+                            {% if form.recibir_avisos_actividades.errors %}<div class="text-danger small mt-1">{{ form.recibir_avisos_actividades.errors.0 }}</div>{% endif %}
                         </div>
                     </div>
 
